@@ -6,6 +6,10 @@ from rest_framework.response import Response
 
 # Create your views here.
 class FilterViewSet(viewsets.ModelViewSet):
+    '''
+    - serializer_class to transform Post model to JSON
+    - function get_queryset for setting filter
+    '''
     serializer_class = FilterSerializer
 
     def get_queryset(self):
@@ -14,6 +18,11 @@ class FilterViewSet(viewsets.ModelViewSet):
 
 
 class EventViewSet(viewsets.ModelViewSet):
+    '''
+    - serializer_class to transform Post model to JSON
+    - function get_queryset for setting events
+    - function create to set filters in events
+    '''
     serializer_class = EventSerializer
 
     def get_queryset(self):
