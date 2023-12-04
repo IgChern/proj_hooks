@@ -37,12 +37,12 @@ class EventViewSet(viewsets.ModelViewSet):
             endpoint=data['endpoint'],
             template=data['template'],
             callback=data['callback'])
+
         newevent.save()
 
-        for filter in data['filters']:
-            filter_obj = Filters.objects.get(filter_name=filter['filter_name'])
+        for filter_data in data.get('filters', []):
+            filter_obj, created = Filters.objects.get_or_create(**filter_data)
             newevent.filters.add(filter_obj)
 
         serializer = EventSerializer(newevent)
-
         return Response(serializer.data)
