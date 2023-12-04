@@ -36,11 +36,11 @@ Make sure you have Docker and Docker Compose installed on your machine.
 2. [http://127.0.0.1:8000/api/event/](http://127.0.0.1:8000/api/event/) - Storing for events
 
 ### 6. Check dictionary in Python shell:
-
-from app_hooks.models import Filters
-filters_objects = Filters.objects…all()
-for obj in filters_objects:
-    print(obj.make_dict())
+python3 manage.py shell  
+from app_hooks.models import Filters  
+filters_objects = Filters.objects.all()  
+for obj in filters_objects:  
+    print(obj.make_dict())  
 
 ### 7. Check DataBase locally with password 'postgres':
 
