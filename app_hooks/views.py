@@ -19,3 +19,21 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         event = Event.objects.all()
         return event
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+
+        newevent = Event.objects.create(
+            name=data['name'],
+            endpoint=data['endpoint'],
+            template=data['template'],
+            callback=data['callback'])
+        newevent.save()
+
+        for filter in data['filters']:
+            filter_obj = Filters.objects.get(filter_name=filter['filter_name'])
+            newevent.filters.add(filter_obj)
+
+        serializer = EventSerializer(newevent)
+
+        return Response(serializer.data)

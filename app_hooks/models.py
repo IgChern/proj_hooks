@@ -2,22 +2,6 @@ from django.db import models
 
 
 # Create your models here.
-class Event(models.Model):
-    '''
-    This model Event makes fields for the name, endpoint,
-    template and callback URL.
-    '''
-    name = models.CharField(max_length=255)
-    endpoint = models.TextField()
-    template = models.TextField()
-    callback = models.URLField()
-    filters = models.ManyToManyField(
-        'Filters', related_name='filter_id')
-
-    def __str__(self):
-        return self.name
-
-
 class Filters(models.Model):
     '''
     This model Filters makes fields for event name, project name,
@@ -39,3 +23,18 @@ class Filters(models.Model):
             'priority_name': self.priority_name,
             'subtask': self.subtask
         }
+
+
+class Event(models.Model):
+    '''
+    This model Event makes fields for the name, endpoint,
+    template and callback URL.
+    '''
+    name = models.CharField(max_length=255)
+    endpoint = models.TextField()
+    template = models.TextField()
+    callback = models.URLField()
+    filters = models.ManyToManyField(Filters)
+
+    def __str__(self):
+        return self.name

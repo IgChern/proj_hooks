@@ -10,8 +10,9 @@ class FilterSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
-    filters = FilterSerializer(many=True, read_only=True)
+    filters = FilterSerializer(many=True)
 
     class Meta:
         model = Event
         fields = '__all__'
+        depth = 1
