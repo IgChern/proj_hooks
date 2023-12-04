@@ -3,13 +3,14 @@ from .models import Filters, Event
 
 
 class FilterSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Filters
         fields = '__all__'
 
 
 class EventSerializer(serializers.ModelSerializer):
-    filters = FilterSerializer(many=True)
+    filters = FilterSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
