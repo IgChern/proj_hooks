@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Filters, Event
+from .models import Filter, Event
 
 
 class FilterSerializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class FilterSerializer(serializers.ModelSerializer):
     Serializer for filters
     '''
     class Meta:
-        model = Filters
+        model = Filter
         fields = '__all__'
 
 

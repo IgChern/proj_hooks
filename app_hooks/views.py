@@ -1,5 +1,5 @@
 from .serializers import FilterSerializer, EventSerializer
-from .models import Filters, Event
+from .models import Filter, Event
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -13,7 +13,7 @@ class FilterViewSet(viewsets.ModelViewSet):
     serializer_class = FilterSerializer
 
     def get_queryset(self):
-        filter = Filters.objects.all()
+        filter = Filter.objects.all()
         return filter
 
 
@@ -41,7 +41,7 @@ class EventViewSet(viewsets.ModelViewSet):
         event_obj.save()
 
         for filter_data in data.get('filters', []):
-            filter_obj, created = Filters.objects.get_or_create(**filter_data)
+            filter_obj, created = Filter.objects.get_or_create(**filter_data)
             event_obj.filters.add(filter_obj)
 
         serializer = EventSerializer(event_obj)
