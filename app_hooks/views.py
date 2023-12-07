@@ -1,48 +1,18 @@
-from .serializers import FilterSerializer, EventSerializer
-from .models import Filter, Event
-from rest_framework import viewsets
-from rest_framework.response import Response
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+from .webhook import Service
 
 
-# Create your views here.
-class FilterViewSet(viewsets.ModelViewSet):
-    '''
-    - serializer_class to transform Post model to JSON
-    - function get_queryset for setting filter
-    '''
-    serializer_class = FilterSerializer
+@require_POST
+def jira_callback_view(request):
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
-    def get_queryset(self):
-        filter = Filter.objects.all()
-        return filter
+    service = Service()
+    result = service.process_jira_callback(data)
 
-
-class EventViewSet(viewsets.ModelViewSet):
-    '''
-    - serializer_class to transform Post model to JSON
-    - function get_queryset for setting events
-    - function create to set filters in events
-    '''
-    serializer_class = EventSerializer
-
-    def get_queryset(self):
-        event = Event.objects.all()
-        return event
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-
-        event_obj = Event.objects.create(
-            name=data['name'],
-            endpoint=data['endpoint'],
-            template=data['template'],
-            callback=data['callback'])
-
-        event_obj.save()
-
-        for filter_data in data.get('filters', []):
-            filter_obj, created = Filter.objects.get_or_create(**filter_data)
-            event_obj.filters.add(filter_obj)
-
-        serializer = EventSerializer(event_obj)
-        return Response(serializer.data)
+    return JsonResponse(result)

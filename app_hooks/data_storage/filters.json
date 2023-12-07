@@ -1,0 +1,234 @@
+[
+    {
+        "id": 0,
+        "name": "Создание задачи с приоритетом HOT в Appevent",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_created"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_created"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["issue", "fields", "priority", "name"], "list_key": null, "value": ["Hot"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "created_default",
+        "callback": "https://discordapp.com/api/webhooks/1086261129547878430/3gXse0GjXbg1EZHWsVCeP7-qF3pK08ZkjUEu-pC6u3wW_QNHkycftigVyAp6i_f78zQT"
+    },
+    {
+        "id": 1,
+        "name": "Задача переходит в NeedForSale в Appevent",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["NeedForSale"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1086259891892654151/EMgJ6aZ9K_RANzZa0WKV39XnUGjUwaIoY8pxqxabUz-omcg0JFP0S9Nvd-71b03YkpZs"
+    },
+
+    {
+        "id": 2,
+        "name": "Hot задача попадает в Code Review в Appevent",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["issue", "fields", "priority", "name"], "list_key": null, "value": ["Hot"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Code review"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1086261870870138960/x5qGmgxRsF60PP8oaYB5ZeOKWKBP_9rUAUun_M0jg9Ai6iEGsGqBv7pToXm33pe66hVh"
+    },
+
+    {
+        "id": 3,
+        "name": "Задача попадпет в Release в Appevent",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Release"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1086262481300758619/R_qkeu14XcmftrrlidHicjATnpQ990TYVYL5YeLk4K7k6i4Kjole5_m9GDXXUdT7PoO1"
+    },
+
+    {
+        "id": 4,
+        "name": "Переоткрыт или Готов к тесту в Appevent",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Reopened", "Ready For Test"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1085568654281805904/QLX02ma8lPwC6pBJNh6lv0kmBUA-ByF6JhnuPIEzz5N6OJIR9w6657qPc9mx44KmJBCV"
+    },
+    {
+        "id": 5,
+        "name": "Добавление комментария",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_commented"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["issue", "fields", "status", "name"], "list_key": null, "value": ["Reopened", "Ready For Test", "Test", "Code Review"]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "comment_created_default",
+        "callback": "https://discordapp.com/api/webhooks/1085568654281805904/QLX02ma8lPwC6pBJNh6lv0kmBUA-ByF6JhnuPIEzz5N6OJIR9w6657qPc9mx44KmJBCV"
+    },
+    {
+        "id": 6,
+        "name": "Создание задачи в AppStore",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_created"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_created"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppStore"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "created_default",
+        "callback": "https://discordapp.com/api/webhooks/1086265106280759356/IxrjF9xD6n3xintnAXG5jtkHgOruWDyxpEKOssyKlCS-DVDmapK8v_IEDnIRwzhhPadY"
+    },
+    {
+        "id": 7,
+        "name": "Задача переходит в Статусы в AppStore",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppStore"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Утверждение", "Сборка", "Публикация", "Done"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1086265106280759356/IxrjF9xD6n3xintnAXG5jtkHgOruWDyxpEKOssyKlCS-DVDmapK8v_IEDnIRwzhhPadY"
+    }, 
+    {
+        "id": 8,
+        "name": "Задача Hot попадает в Selected For Development",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["issue", "fields", "project", "name"], "list_key": null, "value": ["AppEvent"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Selected for Development"]},
+            {"key": ["issue", "fields", "priority", "name"], "list_key": null, "value": ["Hot"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_embeded",
+        "template": "status_updated_default",
+        "callback": "https://discordapp.com/api/webhooks/1086266125442109540/-UC1aBZUtcUEddaK9fMwbjUC0qLSFcwD_CCbnjVvlElI7U8BmnH9vR8EJO2PvwtVbjeQ"
+    },
+    {
+        "id": 9,
+        "name": "Релиз версии",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:version_released"]}
+        ],
+        "endpoint": "discord_for_version",
+        "template": "version_released",
+        "callback": "https://discord.com/api/webhooks/1093516740064989255/HQm2IdBzafGM1tWMKXwhoIl-F07EQUW8QBDri4V_3LbBziAyI8NxjvUYTr_bAXg4ynI-"
+    },
+    {
+        "id": 10,
+        "name": "Тесты не пройдены",
+        "filters": [
+            {"key": ["autotests", "status"], "list_key": null, "value": ["failed"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "autotests_failed",
+        "callback": "https://discord.com/api/webhooks/1098307241066643577/J0ieVA5wa_5KDfQu_2b_ZU9vp7AA-mAU6h6iefdNEAgJknvFqYB_nxwMFIcxLw7LEt9K"
+    },
+    {
+        "id": 11,
+        "name": "Тесты пройдены",
+        "filters": [
+            {"key": ["autotests", "status"], "list_key": null, "value": ["passed"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "autotests_passed",
+        "callback": "https://discord.com/api/webhooks/1098307241066643577/J0ieVA5wa_5KDfQu_2b_ZU9vp7AA-mAU6h6iefdNEAgJknvFqYB_nxwMFIcxLw7LEt9K"
+    },
+    {
+        "id": 12,
+        "name": "При запуске тестового окружения возникла ошибка, тесты не были запущены",
+        "filters": [
+            {"key": ["autotests", "status"], "list_key": null, "value": ["error"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "autotests_error",
+        "callback": "https://discord.com/api/webhooks/1098307241066643577/J0ieVA5wa_5KDfQu_2b_ZU9vp7AA-mAU6h6iefdNEAgJknvFqYB_nxwMFIcxLw7LEt9K"
+    },
+    {
+        "id": 13,
+        "name": "Результат успешной сборки приложения",
+        "filters": [
+            {"key": ["appbuild", "status"], "list_key": null, "value": ["успешно"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "app_build_success",
+        "callback": "https://discord.com/api/webhooks/1107728583847333998/31L_GTwtxJfaxOft1nZ7eK9jizk3XgYW6yU8WDQftM6xNWkeyJek4ReQz6jzM79dvV5w"
+    },
+    {
+        "id": 14,
+        "name": "Результат провальной сборки приложения",
+        "filters": [
+            {"key": ["appbuild", "status"], "list_key": null, "value": ["ошибка"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "app_build_failed",
+        "callback": "https://discord.com/api/webhooks/1107728583847333998/31L_GTwtxJfaxOft1nZ7eK9jizk3XgYW6yU8WDQftM6xNWkeyJek4ReQz6jzM79dvV5w"
+    },
+    {
+        "id": 15,
+        "name": "Расчет статистики",
+        "filters": [
+            {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_updated"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_generic"]},
+            {"key": ["changelog", "items"], "list_key": ["field"], "value": ["status"]},
+            {"key": ["changelog", "items"], "list_key": ["toString"], "value": ["Release"]},
+            {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
+        ],
+        "endpoint": "discord_for_task_stat",
+        "template": "task_stat",
+        "callback": "https://discordapp.com/api/webhooks/1110155193292705864/n8VGxRsrOfwSXNZzzD9tyT1PpZHlIo7cDjx33oBEJVpOc32QE-7UQASPGVknOANnArvc"
+    },
+    {
+        "id": 16,
+        "name": "Результат удачного создания приложения",
+        "filters": [
+            {"key": ["appbuild", "create_app"], "list_key": null, "value": ["true"]},
+            {"key": ["appbuild", "status"], "list_key": null, "value": ["успешно"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "app_build_create_app_success",
+        "callback": "https://discord.com/api/webhooks/1107728583847333998/31L_GTwtxJfaxOft1nZ7eK9jizk3XgYW6yU8WDQftM6xNWkeyJek4ReQz6jzM79dvV5w"
+    },
+    {
+        "id": 17,
+        "name": "Результат неудачного создания приложения",
+        "filters": [
+            {"key": ["appbuild", "create_app"], "list_key": null, "value": ["true"]},
+            {"key": ["appbuild", "status"], "list_key": null, "value": ["ошибка"]}
+        ],
+        "endpoint": "discord_direct",
+        "template": "app_build_create_app_failed",
+        "callback": "https://discord.com/api/webhooks/1107728583847333998/31L_GTwtxJfaxOft1nZ7eK9jizk3XgYW6yU8WDQftM6xNWkeyJek4ReQz6jzM79dvV5w"
+    }
+
+]
