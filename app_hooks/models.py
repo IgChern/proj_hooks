@@ -1,13 +1,13 @@
 from django.db import models
-from django.core.serializers import serialize
-from django.contrib.postgres.fields import ArrayField
+from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
 
 
 class Filter(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
-    data = ArrayField(models.JSONField(_('Filter Data'), default=list))
+    data = JSONField(
+        _('Filter Data'), default=list, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -29,13 +29,15 @@ class Event(models.Model):
         return self.name
 
     def get_event(self):
+        filters_list = [{'name': filter_instance.name, 'data': filter_instance.data}
+                        for filter_instance in self.filters.all()]
         data = {
             'id': self.id,
             'name': self.name,
             'endpoint': self.endpoint,
             'template': self.template,
             'callback': self.callback,
-            'filters': serialize('json', self.filters.all())
+            'filters': filters_list
         }
         return data
 

@@ -1,18 +1,9 @@
 import json
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
-from .webhook import Service
+from .tasks import process_jira_callback_task
 
 
-@require_POST
 def jira_callback_view(request):
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON data"}, status=400)
-
-    service = Service()
-    result = service.process_jira_callback(data)
-
-    return JsonResponse(result)
+    data = json.loads(request.body)
+    process_jira_callback_task.delay(data)
+    return JsonResponse({'result': 'Task entered'})

@@ -28,6 +28,37 @@ services:
             - .env
         networks:
             - some_network
+    redis:
+        image: 'redis:alpine'
+        hostname: redis
+        command: redis-server
+        networks:
+            - some_network
+        ports:
+            - '6379:6379'
+    celery:
+        build: .
+        command: >
+            sh -c "
+            celery -A celery worker --loglevel=info &&
+            celery -A celery beat --loglevel=info"
+        depends_on:
+            - db
+            - redis
+            - django
+        env_file:
+            - .env
+        networks:
+            - some_network
+    flower:
+        image: mher/flower
+        command: sh -c "sleep 10 && flower --broker=redis://redis:6379/0"
+        ports:
+            - "5555:5555"
+        depends_on:
+            - celery
+            - redis
+
 
 networks:
     some_network:

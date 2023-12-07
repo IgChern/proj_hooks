@@ -5,6 +5,8 @@ from ..templates import render_to_string
 import aiohttp
 from jira import JIRA
 
+# jira = JIRA('https://jira.appevent.ru', basic_auth=('<jira_username>', '<jira_password>'))
+
 
 class DiscordEndpoint(EndpointInterface):
     """ Рендер из шаблона """
