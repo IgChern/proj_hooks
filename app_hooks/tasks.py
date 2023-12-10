@@ -1,11 +1,16 @@
 from celery import shared_task
-from .parsers import CallbackParser
-from .storage import FileStorage
-from .webhook import Service
+from app_hooks.webhook import Service
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
 def process_jira_callback_task(data):
-    webhook_service = Service()
-    result = webhook_service.process_jira_callback(data)
-    return result
+    try:
+        webhook_service = Service()
+        result = webhook_service.process_jira_callback(data)
+        return result
+    except Exception as e:
+        logger.error(f"An error: {e}")
+        return None

@@ -1,0 +1,5 @@
+**{{ jira_data.appbuild.app_name }}**
+    Подготовка нового приложения к сборке: **{{ jira_data.appbuild.status }}** :white_check_mark:
+    Ошибка: **{{ jira_data.appbuild.error }}**
+    [{{ jira_data.appbuild.build_url }}]
+    [{{ jira_data.appbuild.branch_url }}]

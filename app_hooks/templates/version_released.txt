@@ -1,0 +1,6 @@
+**{{ jira_data.project }}** - Версия: **{{ jira_data.version }}**
+{% for key, value in jira_data.tasks.items() %}
+**{{key}}**
+    {% for task in value %}> **{{ task.key }}: {{ task.name }}**
+    > [https://jira.appevent.ru/browse/{{ task.key }}] **Разработчик(и):** _{{ task.assignee|join(", ") }}_ **Тестировщик:** _{{ task.qa if task.qa is not none else 'Не назначен'}}_
+{% endfor %}{% endfor %}

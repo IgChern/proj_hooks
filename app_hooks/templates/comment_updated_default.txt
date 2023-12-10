@@ -1,0 +1,7 @@
+__**{{ jira_data.user.displayName }}**__ изменил(а) комментарий в **{{ jira_data.issue.fields.issuetype.name }}**
+> {{ jira_data.issue.key }}: {{jira_data.issue.fields.summary}}
+> [https://jira.appevent.ru/browse/{{ jira_data.issue.key }}]
+
+```{{ jira_data.comment.body | truncate(1000) }}```
+
+> Проект: **{{ jira_data.issue.fields.project.name }}**

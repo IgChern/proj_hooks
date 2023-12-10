@@ -12,4 +12,4 @@ app = Celery('proj_webhook')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Automatically discover and register tasks within the Celery app
-app.autodiscover_tasks()
+app.autodiscover_tasks(['app_hooks.tasks'])

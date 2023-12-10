@@ -1,0 +1,5 @@
+__**{{ jira_data.user.displayName }}**__ создал(а) **{{ jira_data.issue.fields.issuetype.name }}** с приоритетом **{{ jira_data.issue.fields.priority.name }}**
+> {{ jira_data.issue.key }}: {{jira_data.issue.fields.summary}}
+> [https://jira.appevent.ru/browse/{{ jira_data.issue.key }}]
+> Статус: **{{ jira_data.issue.fields.status.name }}** Исполнитель: **{% if jira_data.issue.fields.assignee %} {{ jira_data.issue.fields.assignee.displayName }} {% else %} Не назначен {% endif %}** Приоритет: **{{ jira_data.issue.fields.priority.name }}**
+> Проект: **{{ jira_data.issue.fields.project.name }}**

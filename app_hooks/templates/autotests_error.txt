@@ -1,0 +1,5 @@
+**{{ jira_data.autotests.issue_key }}** - **{{ jira_data.autotests.issue_summary }}**
+    Сборка: [{{ jira_data.autotests.build }}]
+    Задача: [{{ jira_data.autotests.issue_link }}]
+    **При запуске тестового окружения возникла ошибка, тесты не были запущены :octagonal_sign:**
+    ```{{ jira_data.autotests.error }}```

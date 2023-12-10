@@ -1,0 +1,3 @@
+**{{ jira_data.appbuild.app_name }}**
+    Результат сборки: **{{ jira_data.appbuild.status }}** :white_check_mark:
+    [{{ jira_data.appbuild.build_url }}]

@@ -1,0 +1,4 @@
+**{{ jira_data.appbuild.app_name }}**
+    Результат сборки: **{{ jira_data.appbuild.status }}** :skull_crossbones:
+    Ошибка: **{{ jira_data.appbuild.error }}**
+    [{{ jira_data.appbuild.build_url }}]

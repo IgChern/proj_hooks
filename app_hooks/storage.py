@@ -3,7 +3,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from typing import List
 
-from .models import Filter
+from .models import Filter, Event
 
 
 class StorageInterface(metaclass=ABCMeta):
@@ -28,3 +28,20 @@ class FileStorage(StorageInterface):
 
     def get_filters(self) -> List[Filter]:
         return self._filters
+
+
+class DjangoStorage(StorageInterface):
+
+    def get_filters(self) -> List[Filter]:
+        filters = Filter.objects.all()
+
+        filters = [filter.data for filter in filters]
+
+        return filters
+
+    def get_templates(self) -> List[str]:
+        events = Event.objects.prefetch_related('filters').all()
+
+        templates = [event.template for event in events]
+
+        return templates

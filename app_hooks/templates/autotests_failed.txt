@@ -1,0 +1,4 @@
+**{{ jira_data.autotests.issue_key }}** - **{{ jira_data.autotests.issue_summary }}**
+    Сборка: [{{ jira_data.autotests.build }}]
+    Задача: [{{ jira_data.autotests.issue_link }}]
+    **{{ jira_data.autotests.message }}**

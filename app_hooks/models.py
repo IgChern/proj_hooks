@@ -28,9 +28,15 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
-    def get_event(self):
-        filters_list = [{'name': filter_instance.name, 'data': filter_instance.data}
-                        for filter_instance in self.filters.all()]
+    def get_filterlist(self):
+
+        filters_list = list()
+        for i in self.filters.all():
+            if isinstance(i, list):
+                filters_list.extend(i)
+            else:
+                filters_list.append(i)
+
         data = {
             'id': self.id,
             'name': self.name,
@@ -44,6 +50,3 @@ class Event(models.Model):
     class Meta:
         verbose_name = _('Event')
         verbose_name_plural = _('Events')
-
-
-events = Event.objects.prefetch_related('filters').all()
