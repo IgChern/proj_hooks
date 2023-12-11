@@ -1,6 +1,6 @@
 from typing import Dict
-from app_hooks.parsers import CallbackParser
-from app_hooks.storage import DjangoStorage
+from .parsers import CallbackParser
+from .storage import DjangoStorage
 
 
 class Service:

@@ -1,5 +1,5 @@
 from celery import shared_task
-from app_hooks.webhook import Service
+from .webhook import Service
 import logging
 
 logger = logging.getLogger(__name__)
