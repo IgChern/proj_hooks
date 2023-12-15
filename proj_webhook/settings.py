@@ -104,7 +104,7 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_IMPORTS = ('app_hooks.tasks',)
 CELERY_BEAT_SCHEDULE = {
     'period_task': {
-        'task': 'app_hooks.tasks.new_task',
+        'task': 'app_hooks.tasks.process_jira_callback_task',
         'schedule': timedelta(minutes=1),
     },
 }
@@ -149,3 +149,27 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'proj_webhook/logs/logs.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'app_hooks': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

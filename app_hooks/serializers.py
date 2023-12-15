@@ -11,7 +11,7 @@ class FilterSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
 
-    filters = FilterSerializer(many=True)
+    filters = FilterSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event

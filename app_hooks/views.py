@@ -1,21 +1,63 @@
-from django.http import JsonResponse
-from .tasks import process_jira_callback_task, new_task
-from django.views.decorators.csrf import csrf_exempt
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-@csrf_exempt
-def jira_callback_view(request):
-    try:
-        data = request.POST
-        return JsonResponse({'result': 'Task entered'})
-    except Exception as e:
-        logger.error(f"An error: {e}")
-        return JsonResponse({'error': f'{e}'})
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import FilterSerializer, EventSerializer
+from .models import Filter, Event
+from .tasks import process_jira_callback_task
 
 
-def my_view():
-    new_task.apply_async()
-    print('Success')
+class EventViewSet(APIView):
+    def get(self, request, *args, **kwargs):
+        filters = Filter.objects.all()
+        events = Event.objects.all()
+
+        filter_serializer = FilterSerializer(filters, many=True)
+        event_serializer = EventSerializer(events, many=True)
+
+        data = {
+            'filters': filter_serializer.data,
+            'events': event_serializer.data
+        }
+
+        return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data.get('data', {})
+
+        # Обработка создания фильтров и событий
+        # Доступ к данным через data
+        # Пример:
+        # filter_data = data.get('filters', [])
+        # event_data = data.get('events', {})
+        # ...
+
+        # Ваша логика создания и сохранения данных
+
+        # Создание объекта Event
+        event_obj = Event.objects.create(
+            name=data.get('name', ''),
+            endpoint=data.get('endpoint', ''),
+            template=data.get('template', ''),
+            callback=data.get('callback', '')
+        )
+
+        for filter_data in data.get('filters', []):
+            filter_obj, created = Filter.objects.get_or_create(**filter_data)
+            event_obj.filters.add(filter_obj)
+
+        # Запуск Celery-задачи
+        task_result = process_jira_callback_task.apply_async(
+            data)  # Асинхронно запускаем задачу
+
+        # Возвращаем созданные данные и идентификатор задачи
+        filter_serializer = FilterSerializer(
+            event_obj.filters.all(), many=True)
+        event_serializer = EventSerializer(event_obj)
+
+        response_data = {
+            'filters': filter_serializer.data,
+            'event': event_serializer.data,
+            'task_id': task_result.id  # Добавляем идентификатор задачи
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)

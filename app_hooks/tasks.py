@@ -14,13 +14,3 @@ def process_jira_callback_task(data):
     except Exception as e:
         logger.error(f"An error: {e}")
         return None
-
-
-@shared_task
-def new_task():
-    try:
-        print('123')
-        return 'Success'
-    except Exception as e:
-        logger.error(f"An error: {e}")
-        return None

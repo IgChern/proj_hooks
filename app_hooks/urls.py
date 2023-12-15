@@ -1,7 +1,6 @@
-from .views import jira_callback_view
 from django.urls import path
-
+from .views import EventViewSet
 
 urlpatterns = [
-    path('jira-callback/', jira_callback_view, name='jira_callback'),
+    path('jira-callback/', EventViewSet.as_view(), name='jira-callback'),
 ]
