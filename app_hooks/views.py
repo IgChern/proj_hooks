@@ -24,16 +24,6 @@ class EventViewSet(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data.get('data', {})
 
-        # Обработка создания фильтров и событий
-        # Доступ к данным через data
-        # Пример:
-        # filter_data = data.get('filters', [])
-        # event_data = data.get('events', {})
-        # ...
-
-        # Ваша логика создания и сохранения данных
-
-        # Создание объекта Event
         event_obj = Event.objects.create(
             name=data.get('name', ''),
             endpoint=data.get('endpoint', ''),
@@ -45,11 +35,9 @@ class EventViewSet(APIView):
             filter_obj, created = Filter.objects.get_or_create(**filter_data)
             event_obj.filters.add(filter_obj)
 
-        # Запуск Celery-задачи
         task_result = process_jira_callback_task.apply_async(
-            data)  # Асинхронно запускаем задачу
+            data)
 
-        # Возвращаем созданные данные и идентификатор задачи
         filter_serializer = FilterSerializer(
             event_obj.filters.all(), many=True)
         event_serializer = EventSerializer(event_obj)
@@ -57,7 +45,7 @@ class EventViewSet(APIView):
         response_data = {
             'filters': filter_serializer.data,
             'event': event_serializer.data,
-            'task_id': task_result.id  # Добавляем идентификатор задачи
+            'task_id': task_result.id
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)

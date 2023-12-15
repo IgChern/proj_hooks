@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 from dotenv import load_dotenv
 from pathlib import Path
-from datetime import timedelta
 import os
 load_dotenv()
 
@@ -105,7 +104,7 @@ CELERY_IMPORTS = ('app_hooks.tasks',)
 CELERY_BEAT_SCHEDULE = {
     'period_task': {
         'task': 'app_hooks.tasks.process_jira_callback_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': 60.0,
     },
 }
 
