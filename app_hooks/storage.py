@@ -33,15 +33,5 @@ class FileStorage(StorageInterface):
 class DjangoStorage(StorageInterface):
 
     def get_filters(self) -> List[Filter]:
-        filters = Filter.objects.all()
-
-        filters = [filter.data for filter in filters]
-
-        return filters
-
-    def get_templates(self) -> List[str]:
-        events = Event.objects.prefetch_related('filters').all()
-
-        templates = [event.template for event in events]
-
-        return templates
+        events = [Event.get_filterlist for event in Event.objects.all()]
+        return events

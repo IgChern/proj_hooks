@@ -10,9 +10,6 @@ from .storage import StorageInterface
 class CallbackParser(object):
     endpoints = {
         "discord_direct": DiscordEndpoint,
-        # "discord_embeded": DiscordEmbededEndpoint,
-        # "discord_for_version": DiscordReleaseNotesEndpoint,
-        # "discord_for_task_stat": DiscordTaskStatEndpoint
     }
 
     def __init__(self, data_storage: StorageInterface):
@@ -38,7 +35,7 @@ class CallbackParser(object):
 
         return False
 
-    async def parse_callback(self, data: json) -> dict:
+    def parse_callback(self, data: json) -> dict:
         matched_filters: dict = {}
 
         for data_filter in self._filters:
@@ -52,7 +49,7 @@ class CallbackParser(object):
                 if data_filter.get('endpoint') in self.endpoints:
                     endpoint_instance = self.endpoints[data_filter['endpoint']](
                         data_filter, data)
-                    result = await endpoint_instance.send_message()
+                    result = endpoint_instance.send_message()
 
                 matched_filters[data_filter['id']]['status'] = result
 

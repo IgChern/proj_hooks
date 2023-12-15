@@ -101,10 +101,10 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
-CELERY_IMPORTS = ('parse_app.tasks',)
+CELERY_IMPORTS = ('app_hooks.tasks',)
 CELERY_BEAT_SCHEDULE = {
-    'period-parse-news': {
-        'task': 'parse_app.tasks.get_parsed',
+    'period_task': {
+        'task': 'app_hooks.tasks.new_task',
         'schedule': timedelta(minutes=1),
     },
 }

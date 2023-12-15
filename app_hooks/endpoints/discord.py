@@ -11,13 +11,13 @@ from jira import JIRA
 class DiscordEndpoint(EndpointInterface):
     """ Рендер из шаблона """
 
-    def __init__(self, data_filter: Filter, jira_data: dict):
-        self.data_filter: Filter = data_filter
+    def __init__(self, data_filter: dict, jira_data: dict):
+        self.data_filter: dict = data_filter
         self.jira_data: dict = jira_data
 
     def get_discord_post_data(self) -> Any:
         return {'content': render_to_string(
-            template=f"{self.data_filter['template']}.txt", base_data=self.data_filter, jira_data=self.jira_data)}
+            template=self.data_filter['template'], base_data=self.data_filter, jira_data=self.jira_data)}
 
     async def send_message(self) -> bool:
 
