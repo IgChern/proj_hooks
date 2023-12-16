@@ -5,6 +5,7 @@ from .endpoints.discord import DiscordEndpoint
 from .helpers import get_dict_path_or_none
 from .models import Filter, Event
 from .storage import StorageInterface
+from django.db.models import QuerySet
 
 
 class CallbackParser(object):
@@ -13,8 +14,8 @@ class CallbackParser(object):
     }
 
     def __init__(self, data_storage: StorageInterface):
-        self._storage: StorageInterface = data_storage()
-        self._filters: List[Event] = self._storage.get_filters()
+        self._storage: StorageInterface = data_storage
+        self._filters: QuerySet[Filter] = self._storage.get_filters()
 
     def _check_list_key(self, dict_path: list, data_list: list) -> Optional[Any]:
         for data in data_list:
@@ -24,12 +25,10 @@ class CallbackParser(object):
         return None
 
     def _parse_single_filter(self, data_filter: Filter, data: dict) -> bool:
-        # Проверем что key присутствует в словаре
         value: Any = get_dict_path_or_none(data, *data_filter['key'])
         if value and isinstance(value, list) and data_filter['list_key']:
             value = self._check_list_key(data_filter['list_key'], value)
 
-        # Проверяем, что value соответствует какому либо значению в списке
         if value is not None and any([(str(x) == str(value)) for x in data_filter['value']]):
             return True
 

@@ -1,5 +1,4 @@
 from .base import EndpointInterface
-from ..models import Filter
 from typing import Any
 from ..templates import render_to_string
 import aiohttp
