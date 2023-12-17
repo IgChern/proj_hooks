@@ -25,14 +25,9 @@ class EventViewSet(APIView):
 
     def post(self, request):
         try:
-            serializer = EventSerializer(data=request.data)
-            if serializer.is_valid():
-                event = serializer.save()
-                matched_filters = self.service.process_jira_callback(
-                    request.data)
-                return Response(matched_filters, status=HTTP_200_OK)
-            else:
-                return Response({'Error': serializer.errors}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            matched_filters = self.service.process_jira_callback(
+                request.data)
+            return Response(matched_filters, status=HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error: {e}")
             return Response({'Error': f'{e}'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
