@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from .models import Event
 from .serializers import EventSerializer
 from .webhook import Service
+from .tasks import process_jira_callback_task
 
 import logging
 
@@ -24,5 +25,6 @@ class EventViewSet(APIView):
         return Response(serialized_events, status=HTTP_200_OK)
 
     def post(self, request):
-        self.service.process_jira_callback(data=request.data)
-        return Response(status=HTTP_200_OK)
+        data = request.data
+        process_jira_callback_task(data)
+        return Response("New task", status=HTTP_200_OK)
