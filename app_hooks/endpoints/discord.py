@@ -1,7 +1,7 @@
 from .base import EndpointInterface
 from typing import Any
 from ..templates import render_to_string
-import aiohttp
+import requests
 from jira import JIRA
 
 # jira = JIRA('https://jira.appevent.ru', basic_auth=('<jira_username>', '<jira_password>'))
@@ -18,14 +18,12 @@ class DiscordEndpoint(EndpointInterface):
         return {'content': render_to_string(
             template=self.data_filter['template'], base_data=self.data_filter, jira_data=self.jira_data)}
 
-    async def send_message(self) -> bool:
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                    self.data_filter['callback'],
-                    json=self.get_discord_post_data()) as resp:
-                await resp.text()
-                if resp.status == 204:
-                    return True
-
+    def send_message(self) -> bool:
+        response = requests.post(
+            self.data_filter['callback'],
+            json=self.get_discord_post_data()
+        )
+        response.raise_for_status()
+        if response.status_code == 204:
+            return True
         return False

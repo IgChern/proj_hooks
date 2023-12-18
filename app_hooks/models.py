@@ -20,7 +20,7 @@ class Filter(models.Model):
 class Event(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
-    endpoint = models.TextField(_('Endpoint'), blank=False)
+    endpoint = models.CharField(_('Endpoint'), blank=False)
     template = models.TextField(_('Template'), blank=True)
     callback = models.URLField(_('Callback'), blank=False)
     filters = models.ManyToManyField(Filter, related_name='events')
@@ -32,10 +32,10 @@ class Event(models.Model):
 
         filters_list = list()
         for i in self.filters.all():
-            if isinstance(i, list):
-                filters_list.extend(i)
+            if isinstance(i.data, list):
+                filters_list.extend(i.data)
             else:
-                filters_list.append(i)
+                filters_list.append(i.data)
 
         data = {
             'id': self.id,

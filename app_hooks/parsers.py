@@ -15,7 +15,7 @@ class CallbackParser(object):
 
     def __init__(self, data_storage: StorageInterface):
         self._storage: StorageInterface = data_storage
-        self._filters: QuerySet[Filter] = self._storage.get_filters()
+        self._filters: List[Event] = self._storage.get_filters()
 
     def _check_list_key(self, dict_path: list, data_list: list) -> Optional[Any]:
         for data in data_list:
