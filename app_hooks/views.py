@@ -19,12 +19,17 @@ class EventViewSet(APIView):
         super().__init__(*args, **kwargs)
         self.service = Service()
 
-    def get(self, request):
+    def get(self):
         events = Event.objects.all()
         serialized_events = EventSerializer(events, many=True).data
         return Response(serialized_events, status=HTTP_200_OK)
 
     def post(self, request):
-        data = request.data
-        process_jira_callback_task.delay(data)
-        return Response("New task", status=HTTP_200_OK)
+        try:
+            data = request.data
+            process_jira_callback_task.delay(data)
+            return Response("New task", status=HTTP_200_OK)
+        except Exception as e:
+            logger.error(
+                f"An error occurred while processing the Jira callback task: {e}")
+            return Response("Internal Server Error", status=500)

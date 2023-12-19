@@ -2,9 +2,7 @@ from typing import Union
 
 
 def get_dict_path_or_none(element: dict, *keys: Union[str, int]) -> any:
-    if not isinstance(element, dict):
-        return None
-    if len(keys) == 0:
+    if not isinstance(element, dict) or len(keys) == 0:
         return None
 
     key_element = element
