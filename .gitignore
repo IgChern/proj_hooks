@@ -1,7 +1,11 @@
 venv
 # .env
 app_hooks/__pycache__
-# app_hooks/migrations
+app_hooks/migrations
 proj_webhook/__pycache__
 **/.DS_Store
 .DS_Store
+proj_webhook/logs
+app_hooks/endpoints/__pycache__
+celerybeat-schedule.db
+dump.rdb

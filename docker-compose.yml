@@ -39,7 +39,7 @@ services:
             - '6379:6379'
     celery-worker:
         build: .
-        command: celery -A proj_webhook worker --loglevel=info -E
+        command: celery -A proj_webhook worker -E --loglevel=info
         depends_on:
             - db
             - redis
@@ -61,8 +61,8 @@ services:
         networks:
             - some_network
     flower:
-        image: mher/flower:0.9.4
-        command: celery flower --broker=redis://redis:6379/0 --port=5555
+        image: mher/flower:latest
+        command: celery --broker=redis://redis:6379/0 flower
         ports:
             - "5555:5555"
         env_file:

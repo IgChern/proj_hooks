@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
+from typing import List
 
 
 class Filter(models.Model):
@@ -28,7 +29,7 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
-    def get_filterlist(self):
+    def get_filterlist(self) -> List[dict]:
 
         filters_list = list()
         for i in self.filters.all():

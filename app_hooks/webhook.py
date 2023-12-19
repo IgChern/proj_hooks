@@ -6,5 +6,5 @@ class Service:
     def __init__(self):
         self.parser = CallbackParser(data_storage=DjangoStorage())
 
-    def process_jira_callback(self, data: dict):
+    def process_jira_callback(self, data: dict) -> dict:
         return self.parser.parse_callback(data)

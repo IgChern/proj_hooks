@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task
-def process_jira_callback_task(data):
+def process_jira_callback_task(data) -> dict:
     try:
         webhook_service = Service()
         result = webhook_service.process_jira_callback(data)

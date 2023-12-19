@@ -10,4 +10,4 @@ celery==5.3.6
 redis==5.0.1
 tzdata==2023.3
 cffi==1.16.0
-flower==0.9.4
+flower
