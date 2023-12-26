@@ -1,21 +1,21 @@
 import json
 from typing import Any, List, Optional
 
-from .endpoints.discord import DiscordEndpoint
+from .endpoints.discord import DiscordDirectEndpoint, DiscordEmbededEndpoint
 from .helpers import get_dict_path_or_none
-from .models import Filter, Event
+from .models import Filter
 from .storage import StorageInterface
-from django.db.models import QuerySet
 
 
 class CallbackParser(object):
     endpoints = {
-        "discord_direct": DiscordEndpoint,
+        "discord_direct": DiscordDirectEndpoint,
+        'discord_embeded': DiscordEmbededEndpoint,
     }
 
     def __init__(self, data_storage: StorageInterface):
         self._storage: StorageInterface = data_storage
-        self._filters: List[Event] = self._storage.get_filters()
+        self._filters: List[dict] = self._storage.get_filters()
 
     def _check_list_key(self, dict_path: list, data_list: list) -> Optional[Any]:
         for data in data_list:

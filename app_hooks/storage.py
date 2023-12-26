@@ -32,4 +32,4 @@ class FileStorage(StorageInterface):
 
 class DjangoStorage(StorageInterface):
     def get_filters(self) -> List[dict]:
-        return [event.get_filterlist() for event in Event.objects.all()]
+        return [event.get_filter_list() for event in Event.objects.prefetch_related('filters').all()]

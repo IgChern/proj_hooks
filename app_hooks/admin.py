@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Filter
+from .models import Event, Filter, EndpointEmbeded
 
 
 @admin.register(Event)
@@ -14,3 +14,9 @@ class FilterAdmin(admin.ModelAdmin):
     search_fields = ('name', )
     list_filter = ('events', )
     list_display = ('name', 'data')
+
+
+@admin.register(EndpointEmbeded)
+class EndponitAdmin(admin.ModelAdmin):
+    search_fields = ('title', 'url')
+    list_filter = ('fields', )

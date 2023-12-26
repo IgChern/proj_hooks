@@ -104,7 +104,7 @@ CELERY_IMPORTS = ('app_hooks.tasks',)
 CELERY_BEAT_SCHEDULE = {
     'period_task': {
         'task': 'app_hooks.tasks.process_jira_callback_task',
-        'schedule': 25.0,
+        'schedule': 55.0,
         'args': (['data'],)
     },
 }
