@@ -21,6 +21,7 @@ class Filter(models.Model):
 
 class Event(models.Model):
     name = models.CharField(_('Name'), max_length=255, blank=False)
+    # поменять на мени2мени для EndpointDirect?
     endpoint = models.CharField(_('Endpoint'), max_length=255, blank=False)
     filters = models.ManyToManyField(Filter, related_name='events')
 
@@ -28,6 +29,8 @@ class Event(models.Model):
         return self.name
 
     # функция с ендпоинтами, переписать эту или сделать новую, которая будет возвращать список ендпоинтов?
+    # не пойму как она должна выглядеть в принципе
+    # + как потом сделать сумму списков, это сумма функции ниже + функция с ендпоинтами?
     def get_filter_list(self) -> List[dict]:
         filters_list = []
         for filter in self.filters.all():
