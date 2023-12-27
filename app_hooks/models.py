@@ -1,7 +1,8 @@
 from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
-from typing import List
+from typing import List, Any
+from app_hooks.endpoints.discord import DiscordEmbededEndpoint
 
 
 class Filter(models.Model):
@@ -21,44 +22,27 @@ class Filter(models.Model):
 class Event(models.Model):
     name = models.CharField(_('Name'), max_length=255, blank=False)
     endpoint = models.CharField(_('Endpoint'), max_length=255, blank=False)
-    template = models.TextField(_('Template'), blank=True)
-    callback = models.URLField(_('Callback'), blank=False)
     filters = models.ManyToManyField(Filter, related_name='events')
 
     def __str__(self):
         return self.name
 
+    # функция с ендпоинтами, переписать эту или сделать новую, которая будет возвращать список ендпоинтов?
     def get_filter_list(self) -> List[dict]:
         filters_list = []
-        for filter_item in self.filters.all():
-            if isinstance(filter_item.data, list):
-                filters_list.extend(filter_item.data)
+        for filter in self.filters.all():
+            if isinstance(filter.data, list):
+                filters_list.extend(filter.data)
             else:
-                filters_list.append(filter_item.data)
+                filters_list.append(filter.data)
 
         data = {
             'id': self.id,
             'name': self.name,
             'endpoint': self.endpoint,
-            'template': self.template,
-            'callback': self.callback,
             'filters': filters_list
         }
         return data
-
-    def get_endpoint_list(self) -> List[dict]:
-        endpoint_list = []
-        for event in Event.objects.filter(endpoint=self.endpoint):
-            event_data = {
-                'id': event.id,
-                'name': event.name,
-                'endpoint': event.endpoint,
-                'template': event.template,
-                'callback': event.callback,
-                'filters': event.get_filter_list()
-            }
-            endpoint_list.append(event_data)
-        return endpoint_list
 
     class Meta:
         verbose_name = _('Event')
@@ -72,7 +56,7 @@ class EndpointInteface(models.Model):
     callback = models.URLField(('Callback'), blank=False)
     events = models.ManyToManyField(Event, related_name='endpoints')
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -95,8 +79,9 @@ class EndpointDirect(EndpointInteface):
 class EmbededFields(models.Model):
 
     name = models.CharField(max_length=255)
-    value_string = models.CharField(max_length=255, blank=True)
-    value_list = models.JSONField(blank=True, null=True)
+    value_string = models.CharField(max_length=255, blank=True, null=True)
+    value_frontend = JSONField(blank=True, null=True)
+    value_backend = JSONField(blank=True, null=True)
     inline = models.BooleanField(default=True)
 
 
@@ -118,3 +103,44 @@ class EndpointEmbeded(EndpointInteface):
     class Meta:
         verbose_name = _('Embeded Endpoint')
         verbose_name_plural = _('Embeded Endpoints')
+
+    def get_discord_data(self) -> Any:
+
+        data = DiscordEmbededEndpoint.get_discord_post_data()
+
+        data['embeds'][0]['title'] = self.title  # Как получить key и summary?
+        data['embeds'][0]['description'] = self.description
+        data['embeds'][0]['url'] = self.url
+        data['embeds'][0]['color'] = self.color
+        data['embeds'][0]['thumbnail'] = {
+            'url': self.thumbnail['url'],
+            'height': self.thumbnail['height'],
+            'width': self.thumbnail['width']
+        }
+        data['embeds'][0]['author'] = {'name': self.author['name']}
+        data['embeds'][0]['footer'] = {
+            'text': self.footer['text'],
+            'icon_url': self.footer['icon_url']
+        }
+
+        fields = []
+        for field in self.fields.all():
+            field_data = {
+                'name': field.name,
+                'inline': field.inline
+            }
+
+            if field.value_string:
+                field_data['value'] = field.value_string
+            elif field.value_frontend:
+                # Как получить фронт енд скор?
+                field_data['value'] = f'FrontEnd: {field.value_frontend}'
+            elif field.value_backend:
+                # Как получить бэкенд скор?
+                field_data['value'] = f'BackEnd: {field.value_backend}'
+
+            fields.append(field_data)
+
+        data['embeds'][0]['fields'] = fields
+
+        return data
