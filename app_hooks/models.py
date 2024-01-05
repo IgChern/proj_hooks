@@ -1,8 +1,7 @@
 from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
-from typing import List, Any
-from .helpers import get_dict_path_or_none
+from typing import List, Any, Dict
 import re
 import json
 
@@ -30,17 +29,15 @@ class Event(models.Model):
 
     def get_filter_list(self) -> List[dict]:
         filters_list = []
-        for endpoint in self.endpoints.all():
-            for filter in self.filters.all():
-                if isinstance(filter.data, list):
-                    filters_list.extend(filter.data)
-                else:
-                    filters_list.append(filter.data)
+        for filter in self.filters.all():
+            if isinstance(filter.data, list):
+                filters_list.extend(filter.data)
+            else:
+                filters_list.append(filter.data)
 
         data = {
             'id': self.id,
             'name': self.name,
-            'endpoint': endpoint.ENDPOINT_TYPE,
             'filters': filters_list
         }
         return data
@@ -106,16 +103,25 @@ class EndpointEmbeded(EndpointInteface):
         verbose_name = _('Embeded Endpoint')
         verbose_name_plural = _('Embeded Endpoints')
 
-    def parse_template_string(self, template: str, jira_data: dict) -> str:
+    def parse_template_string(self, template: str, jira_data: Dict) -> str:
         pattern = r'{{\s*([^{}]+)\s*}}'
 
         def replace(match):
             keys = [key.strip() for key in match.group(1).split(',')]
-            values = [get_dict_path_or_none(
-                jira_data, *key.split(',')) for key in keys]
+            values = [self._get_nested_value(
+                jira_data, key.split(',')) for key in keys]
             return ', '.join(str(value) for value in values)
+
         result = re.sub(pattern, replace, template)
         return result
+
+    def _get_nested_value(self, dictionary: Dict, keys: list):
+        try:
+            for key in keys:
+                dictionary = dictionary[key]
+            return dictionary
+        except (KeyError, TypeError):
+            return None
 
     def get_discord_data(self, jira_data: dict) -> Any:
         parsed_title = self.parse_template_string(self.title, jira_data)
@@ -129,17 +135,27 @@ class EndpointEmbeded(EndpointInteface):
         parsed_footer = self.parse_template_string(self.footer, jira_data)
         parsed_fields = self.parse_template_string(self.fields, jira_data)
 
-        if isinstance(parsed_fields, str):
-            parsed_fields = json.loads(parsed_fields)
+        if parsed_fields is not None:
+            try:
+                parsed_fields = json.loads(parsed_fields)
+            except json.JSONDecodeError:
+                parsed_fields = None
 
         fields_data = []
-        for field in parsed_fields:
-            field_data = {
-                "name": self.parse_template_string(field.get('name', ''), jira_data),
-                "value": self.parse_template_string(field.get('value', ''), jira_data),
-                "inline": field.get('inline', False),
-            }
-            fields_data.append(field_data)
+        if parsed_fields:
+            for field in parsed_fields:
+                name = self.parse_template_string(
+                    field.get('name', ''), jira_data)
+                value = self.parse_template_string(
+                    field.get('value', ''), jira_data)
+                inline = self.parse_template_string(field.get('inline', False))
+
+                field_data = {
+                    "name": name,
+                    "value": value,
+                    "inline": inline,
+                }
+                fields_data.append(field_data)
 
         data = {
             "embeds": [
