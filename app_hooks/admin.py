@@ -18,5 +18,4 @@ class FilterAdmin(admin.ModelAdmin):
 
 @admin.register(EndpointEmbeded)
 class EndponitAdmin(admin.ModelAdmin):
-    search_fields = ('title', 'url')
-    list_filter = ('fields', )
+    list_display = ('data_filter', 'jira_data')

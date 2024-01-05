@@ -2,7 +2,9 @@ from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
 from typing import List, Any
-from app_hooks.endpoints.discord import DiscordEmbededEndpoint
+from .helpers import get_dict_path_or_none
+import re
+import json
 
 
 class Filter(models.Model):
@@ -21,28 +23,24 @@ class Filter(models.Model):
 
 class Event(models.Model):
     name = models.CharField(_('Name'), max_length=255, blank=False)
-    # поменять на мени2мени для EndpointDirect?
-    endpoint = models.CharField(_('Endpoint'), max_length=255, blank=False)
     filters = models.ManyToManyField(Filter, related_name='events')
 
     def __str__(self):
         return self.name
 
-    # функция с ендпоинтами, переписать эту или сделать новую, которая будет возвращать список ендпоинтов?
-    # не пойму как она должна выглядеть в принципе
-    # + как потом сделать сумму списков, это сумма функции ниже + функция с ендпоинтами? + вопрос по админ панели
     def get_filter_list(self) -> List[dict]:
         filters_list = []
-        for filter in self.filters.all():
-            if isinstance(filter.data, list):
-                filters_list.extend(filter.data)
-            else:
-                filters_list.append(filter.data)
+        for endpoint in self.endpoints.all():
+            for filter in self.filters.all():
+                if isinstance(filter.data, list):
+                    filters_list.extend(filter.data)
+                else:
+                    filters_list.append(filter.data)
 
         data = {
             'id': self.id,
             'name': self.name,
-            'endpoint': self.endpoint,
+            'endpoint': endpoint.ENDPOINT_TYPE,
             'filters': filters_list
         }
         return data
@@ -53,7 +51,7 @@ class Event(models.Model):
 
 
 class EndpointInteface(models.Model):
-    ENDPOINTTYPE = 'base'
+    ENDPOINT_TYPE = 'base'
 
     name = models.CharField(('Name'), max_length=255, blank=False)
     callback = models.URLField(('Callback'), blank=False)
@@ -69,7 +67,7 @@ class EndpointInteface(models.Model):
 
 
 class EndpointDirect(EndpointInteface):
-    ENDPOINTTYPE = 'direct'
+    ENDPOINT_TYPE = 'discord_direct'
 
     template = models.TextField(_('Template'), blank=True)
     events = models.ManyToManyField(Event, related_name='direct_endpoints')
@@ -82,18 +80,19 @@ class EndpointDirect(EndpointInteface):
 class EmbededFields(models.Model):
 
     name = models.CharField(max_length=255)
-    value_string = models.CharField(max_length=255, blank=True, null=True)
-    value_frontend = JSONField(blank=True, null=True)
-    value_backend = JSONField(blank=True, null=True)
+    value = models.CharField(max_length=255, blank=False)
     inline = models.BooleanField(default=True)
 
 
 class EndpointEmbeded(EndpointInteface):
-    ENDPOINT_TYPE = 'embeded'
+    ENDPOINT_TYPE = 'discord_embeded'
+
+    name = models.CharField(('Name'), max_length=255, blank=False)
     title = models.CharField(('Title'), max_length=255, blank=False)
-    description = models.CharField(('Title'), max_length=255, blank=False)
-    url = models.URLField(_('Callback'), blank=False)
-    color = models.IntegerField(_('Color'), blank=False)
+    description = models.CharField(
+        ('Description'), max_length=255, blank=False)
+    url = models.URLField(_('Url'), blank=False)
+    color = models.CharField(_('Color'), blank=False)
     thumbnail = models.JSONField(
         _('Thumbnail'), default=list, null=True, blank=True)
     author = models.JSONField(
@@ -107,43 +106,63 @@ class EndpointEmbeded(EndpointInteface):
         verbose_name = _('Embeded Endpoint')
         verbose_name_plural = _('Embeded Endpoints')
 
-    def get_discord_data(self) -> Any:
+    def parse_template_string(self, template: str, jira_data: dict) -> str:
+        pattern = r'{{\s*([^{}]+)\s*}}'
 
-        data = DiscordEmbededEndpoint.get_discord_post_data()
+        def replace(match):
+            keys = [key.strip() for key in match.group(1).split(',')]
+            values = [get_dict_path_or_none(
+                jira_data, *key.split(',')) for key in keys]
+            return ', '.join(str(value) for value in values)
+        result = re.sub(pattern, replace, template)
+        return result
 
-        data['embeds'][0]['title'] = self.title  # Как получить key и summary?
-        data['embeds'][0]['description'] = self.description
-        data['embeds'][0]['url'] = self.url
-        data['embeds'][0]['color'] = self.color
-        data['embeds'][0]['thumbnail'] = {
-            'url': self.thumbnail['url'],
-            'height': self.thumbnail['height'],
-            'width': self.thumbnail['width']
-        }
-        data['embeds'][0]['author'] = {'name': self.author['name']}
-        data['embeds'][0]['footer'] = {
-            'text': self.footer['text'],
-            'icon_url': self.footer['icon_url']
-        }
+    def get_discord_data(self, jira_data: dict) -> Any:
+        parsed_title = self.parse_template_string(self.title, jira_data)
+        parsed_description = self.parse_template_string(
+            self.description, jira_data)
+        parsed_url = self.parse_template_string(self.url, jira_data)
+        parsed_color = self.parse_template_string(self.color, jira_data)
+        parsed_thumbnail = self.parse_template_string(
+            self.thumbnail, jira_data)
+        parsed_author = self.parse_template_string(self.author, jira_data)
+        parsed_footer = self.parse_template_string(self.footer, jira_data)
+        parsed_fields = self.parse_template_string(self.fields, jira_data)
 
-        fields = []
-        for field in self.fields.all():
+        if isinstance(parsed_fields, str):
+            parsed_fields = json.loads(parsed_fields)
+
+        fields_data = []
+        for field in parsed_fields:
             field_data = {
-                'name': field.name,
-                'inline': field.inline
+                "name": self.parse_template_string(field.get('name', ''), jira_data),
+                "value": self.parse_template_string(field.get('value', ''), jira_data),
+                "inline": field.get('inline', False),
             }
+            fields_data.append(field_data)
 
-            if field.value_string:
-                field_data['value'] = field.value_string
-            elif field.value_frontend:
-                # Как получить фронт енд скор?
-                field_data['value'] = f'FrontEnd: {field.value_frontend}'
-            elif field.value_backend:
-                # Как получить бэкенд скор?
-                field_data['value'] = f'BackEnd: {field.value_backend}'
-
-            fields.append(field_data)
-
-        data['embeds'][0]['fields'] = fields
+        data = {
+            "embeds": [
+                {
+                    "title": parsed_title,
+                    "description": parsed_description,
+                    "url": parsed_url,
+                    "color": parsed_color,
+                    "thumbnail": {
+                        "url": parsed_thumbnail,
+                        "height": 1,
+                        "width": 1
+                    },
+                    "author": {
+                        "name": parsed_author,
+                    },
+                    "footer": {
+                        "text": parsed_footer,
+                        "icon_url": "https://appevent.ru/img/logo_clean@2x.png"
+                    },
+                    "fields": fields_data,
+                }
+            ]
+        }
 
         return data
