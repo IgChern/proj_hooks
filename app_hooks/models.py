@@ -108,7 +108,7 @@ class EndpointEmbeded(EndpointInterface):
     def extract_keys(template_string):
         pattern = r'\{\{\s*([^{}]+)\s*\}\}'
         matches = re.findall(pattern, template_string)
-        return [key.strip() for key in matches]
+        return [key.strip() for key in matches if key.strip()]
 
     def get_discord_data(self, jira_data: dict):
 
@@ -141,3 +141,13 @@ class EndpointEmbeded(EndpointInterface):
             ]
         }
         return data
+
+    def find_value(self, data, path) -> Any:
+        keys = path.split(',')
+        value = data
+        for key in keys:
+            if key in value:
+                value = value[key]
+            else:
+                return None
+        return value
