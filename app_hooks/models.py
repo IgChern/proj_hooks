@@ -27,6 +27,7 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    # Тут не пойму как сделать
     def get_filter_list(self) -> List[dict]:
         filters_list = []
         for filter in self.filters.all():
@@ -91,11 +92,11 @@ class EndpointEmbeded(EndpointInterface):
         ('Description'), max_length=255, blank=False)
     url = models.URLField(_('Url'), blank=False)
     color = models.CharField(_('Color'), blank=False)
-    thumbnail = models.JSONField(
+    thumbnail = models.TextField(
         _('Thumbnail'), default=list, null=True, blank=True)
-    author = models.JSONField(
+    author = models.TextField(
         _('Author'), default=list, null=True, blank=True)
-    footer = models.JSONField(
+    footer = models.TextField(
         _('Footer'), default=list, null=True, blank=True)
     fields = models.ManyToManyField(EmbededFields, related_name='endpoint')
     events = models.ManyToManyField(Event, related_name='embeded_endpoints')
