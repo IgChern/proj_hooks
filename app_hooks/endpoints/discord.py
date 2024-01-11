@@ -33,23 +33,34 @@ class DiscordDirectEndpoint(EndpointInterface):
 class DiscordEmbededEndpoint(DiscordDirectEndpoint):
     """ Рендер встроенного шаблона """
 
-    def get_discord_post_data(self, jira_data: dict) -> Any:
+    def get_discord_post_data(self) -> Any:
 
-        name = jira_data['user']['displayName']
-        task_type = jira_data['issue']['fields']['issuetype']['name']
-        priority = jira_data['issue']['fields']['priority']['name']
-        project = jira_data['issue']['fields']['project']['name']
-        key = jira_data['issue']['key']
-        summary = jira_data['issue']['fields']['summary']
-        status = jira_data['issue']['fields']['status']['name']
-        assignee = jira_data['issue']['fields']['assignee']['displayName']
-        from_status = jira_data['changelog']['items'][0]['fromString']
-        to_status = jira_data['changelog']['items'][0]['toString']
-        comment = jira_data['comment']['body']
-        qa_specialist = jira_data['issue']['fields']['customfield_10500']['displayName']
+        name = get_dict_path_or_none(self.jira_data, 'user', 'displayName')
+        task_type = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'issuetype', 'name')
+        priority = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'priority', 'name')
+        project = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'project', 'name')
+        key = get_dict_path_or_none(self.jira_data, 'issue', 'key')
+        summary = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'summary')
+        status = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'status', 'name')
+        assignee = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'assignee', 'displayName')
+        from_status = get_dict_path_or_none(
+            self.jira_data, 'changelog', 'items', 0, 'fromString')
+        to_status = get_dict_path_or_none(
+            self.jira_data, 'changelog', 'items', 0, 'toString')
+        comment = get_dict_path_or_none(self.jira_data, 'comment', 'body')
+        qa_specialist = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'customfield_10500', 'displayName')
 
-        frontend_score = jira_data['issue']['fields']['customfield_10601']
-        backend_score = jira_data['issue']['fields']['customfield_10600']
+        frontend_score = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'customfield_10601')
+        backend_score = get_dict_path_or_none(
+            self.jira_data, 'issue', 'fields', 'customfield_10600')
 
         description = ''
         icon_url = 'https://cdn-icons-png.flaticon.com/32/148/148781.png'

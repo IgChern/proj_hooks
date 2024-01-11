@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Filter, EndpointEmbeded
+from .models import Event, Filter, EndpointEmbeded, EmbededFields
 
 
 @admin.register(Event)
@@ -16,5 +16,10 @@ class FilterAdmin(admin.ModelAdmin):
 
 
 @admin.register(EndpointEmbeded)
-class EndpointAdmin(admin.ModelAdmin):
+class EndpointEmbededAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+
+
+@admin.register(EmbededFields)
+class EmbededFieldsAdmin(admin.ModelAdmin):
     list_display = ('name', )
