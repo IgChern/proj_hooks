@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app_hooks',
     'rest_framework',
+    'polymorphic',
 ]
 
 MIDDLEWARE = [

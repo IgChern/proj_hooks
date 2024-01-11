@@ -2,9 +2,9 @@ from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
 from typing import List, Any, Dict
+from polymorphic.models import PolymorphicModel
 import re
 from .helpers import get_dict_path_or_none
-import json
 
 
 class Filter(models.Model):
@@ -25,7 +25,7 @@ class Event(models.Model):
     name = models.CharField(_('Name'), max_length=255, blank=False)
     filters = models.ManyToManyField(Filter, related_name='events')
     endpoints = models.ManyToManyField(
-        'EndpointEmbeded', blank=True, related_name='endpoints', null=True)
+        'EndpointEmbeded', blank=True, related_name='endpoints')
 
     def __str__(self):
         return self.name
@@ -59,7 +59,7 @@ class Event(models.Model):
         verbose_name_plural = _('Events')
 
 
-class EndpointInterface(models.Model):
+class EndpointInterface(PolymorphicModel):
     ENDPOINT_TYPE = 'base'
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
