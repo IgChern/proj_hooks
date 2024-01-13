@@ -88,10 +88,10 @@ class EndpointEmbeded(EndpointInterface):
 
     @staticmethod
     def extract_keys(template_string, jira_data):
-        pattern = r'\{\{\s*([^{}]+)\s*\}\}'
+        pattern = r'\{\{([^{}]+)\}\}'
 
         def replace_match(match):
-            key_path = match.group(1).strip().split('.')
+            key_path = match.group(1).strip().split(', ')
             value = get_dict_path_or_none(jira_data, *key_path)
             return str(value) if value is not None else match.group(0)
 
