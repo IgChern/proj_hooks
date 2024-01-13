@@ -21,56 +21,16 @@ class Filter(models.Model):
         verbose_name_plural = _('Filters')
 
 
-class Event(models.Model):
-    name = models.CharField(_('Name'), max_length=255, blank=False)
-    filters = models.ManyToManyField(Filter, related_name='events')
-    endpoints = models.ManyToManyField(
-        'EndpointEmbeded', blank=True, related_name='endpoints')
-
-    def __str__(self):
-        return self.name
-
-    def get_filter_list(self) -> Dict[str, List[dict]]:
-        data = {
-            'id': self.id,
-            'name': self.name,
-            'filters': [],
-            'endpoints': []
-        }
-
-        for endpoint in self.endpoints.all():
-            filters_list = []
-            for data_filter in self.filters.all():
-                if isinstance(data_filter.data, list):
-                    filters_list.extend(data_filter.data)
-                else:
-                    filters_list.append(data_filter.data)
-
-            data['filters'].append({
-                'filters': filters_list
-            })
-
-            data['endpoints'].append(endpoint.ENDPOINT_TYPE)
-
-        return data
-
-    class Meta:
-        verbose_name = _('Event')
-        verbose_name_plural = _('Events')
-
-
 class EndpointInterface(PolymorphicModel):
     ENDPOINT_TYPE = 'base'
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
     callback = models.URLField(_('Callback'), blank=False)
-    events = models.ManyToManyField(Event, related_name='endpoints')
 
     def __str__(self):
         return self.name
 
     class Meta:
-        abstract = True
         verbose_name = _('Base Endpoint')
         verbose_name_plural = _('Base Endpoints')
 
@@ -79,7 +39,6 @@ class EndpointDirect(EndpointInterface):
     ENDPOINT_TYPE = 'discord_direct'
 
     template = models.TextField(_('Template'), blank=True)
-    events = models.ManyToManyField(Event, related_name='direct_endpoints')
 
     def __str__(self):
         return self.template
@@ -107,7 +66,6 @@ class EmbededFields(models.Model):
 class EndpointEmbeded(EndpointInterface):
     ENDPOINT_TYPE = 'discord_embeded'
 
-    name = models.CharField(('Name'), max_length=255, blank=False)
     title = models.CharField(('Title'), max_length=255, blank=False)
     description = models.CharField(
         ('Description'), max_length=255, blank=False)
@@ -120,8 +78,6 @@ class EndpointEmbeded(EndpointInterface):
     footer = models.TextField(
         _('Footer'), null=True, blank=True)
     fields = models.ManyToManyField(EmbededFields, related_name='endpoint')
-    events = models.ManyToManyField(
-        Event, related_name='endpoints_embeded', related_query_name='endpoint_embeded')
 
     def __str__(self):
         return self.name
@@ -166,3 +122,42 @@ class EndpointEmbeded(EndpointInterface):
             ]
         }
         return data
+
+
+class Event(models.Model):
+    name = models.CharField(_('Name'), max_length=255, blank=False)
+    filters = models.ManyToManyField(Filter, related_name='events')
+    endpoints = models.ManyToManyField(
+        EndpointInterface, blank=True, related_name='endpoints')
+
+    def __str__(self):
+        return self.name
+
+    def get_filter_list(self) -> Dict[str, List[dict]]:
+
+        filters_list = []
+
+        for endpoint in self.endpoints.all():
+            endpoint_filter_list = []
+
+            for data_filter in self.filters.all():
+                if isinstance(data_filter.data, list):
+                    endpoint_filter_list.extend(data_filter.data)
+                else:
+                    endpoint_filter_list.append(data_filter.data)
+
+            data = {
+                'id': f'{self.id}-{endpoint.id}',
+                'name': self.name,
+                'filters': endpoint_filter_list,
+                'endpoint': [endpoint.ENDPOINT_TYPE],
+                'endpoint_id': endpoint.id,
+            }
+
+            filters_list.append(data)
+
+        return filters_list
+
+    class Meta:
+        verbose_name = _('Event')
+        verbose_name_plural = _('Events')
