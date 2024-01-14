@@ -25,12 +25,16 @@ class CallbackParser(object):
         return None
 
     def _parse_single_filter(self, data_filter: Filter, data: dict) -> bool:
-        value: Any = get_dict_path_or_none(data, *data_filter['key'])
-        if value and isinstance(value, list) and data_filter['list_key']:
-            value = self._check_list_key(data_filter['list_key'], value)
+        if isinstance(data_filter, dict):
+            data_filter = [data_filter]
 
-        if value is not None and any([(str(x) == str(value)) for x in data_filter['value']]):
-            return True
+        if data_filter and data_filter[0].get('key'):
+            value: Any = get_dict_path_or_none(data, *data_filter[0]['key'])
+            if value and isinstance(value, list) and data_filter[0].get('list_key'):
+                value = self._check_list_key(data_filter[0]['list_key'], value)
+
+            if value is not None and any([(str(x) == str(value)) for x in data_filter[0]['value']]):
+                return True
 
         return False
 
@@ -38,18 +42,22 @@ class CallbackParser(object):
         matched_filters: dict = {}
 
         for data_filter in self._filters:
-            if all([self._parse_single_filter(x, data) for x in data_filter['filters']]):
-                matched_filters[data_filter['id']] = {
-                    'name': data_filter['name'], 'endpoint': data_filter['endpoint'], 'template': data_filter['template'],
-                    'callback': data_filter['callback'], 'status': 0}
+            print(data_filter)
+            filt = all([self._parse_single_filter(x, data)
+                       for x in data_filter])
+            print(filt)
+            if filt:
+                matched_filters[data_filter[0]['id']] = {
+                    'name': data_filter[0]['name'], 'endpoint': data_filter[0]['endpoint'], 'template': data_filter[0]['template'],
+                    'callback': data_filter[0]['callback'], 'status': 0}
 
                 result = False
 
-                if data_filter.get('endpoint') in self.endpoints:
-                    endpoint_instance = self.endpoints[data_filter['endpoint']](
-                        data_filter, data)
+                if data_filter[0]['endpoint'] in self.endpoints:
+                    endpoint_instance = self.endpoints[data_filter[0]['endpoint']](
+                        data_filter[0], data)
                     result = endpoint_instance.send_message()
 
-                matched_filters[data_filter['id']]['status'] = result
+                matched_filters[data_filter[0]['id']]['status'] = result
 
         return {'matched_filters': matched_filters}

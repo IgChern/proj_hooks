@@ -91,7 +91,7 @@ class EndpointEmbeded(EndpointInterface):
         pattern = r'\{\{([^{}]+)\}\}'
 
         def replace_match(match):
-            key_path = match.group(1).strip().split(', ')
+            key_path = match.group(1).strip().split('.')
             value = get_dict_path_or_none(jira_data, *key_path)
             return str(value) if value is not None else match.group(0)
 
@@ -150,7 +150,7 @@ class Event(models.Model):
                 'id': f'{self.id}-{endpoint.id}',
                 'name': self.name,
                 'filters': endpoint_filter_list,
-                'endpoint': [endpoint.ENDPOINT_TYPE],
+                'endpoint': endpoint.ENDPOINT_TYPE,
                 'endpoint_id': endpoint.id,
             }
 

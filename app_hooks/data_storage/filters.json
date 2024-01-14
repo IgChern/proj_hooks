@@ -1,6 +1,6 @@
 [
     {
-        "id": 0, строка 1-1 1-2 1-3 айди евента-айди ендпоинта
+        "id": 0,
         "name": "Создание задачи с приоритетом HOT в Appevent",
         "filters": [
             {"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_created"]},
@@ -9,9 +9,8 @@
             {"key": ["issue", "fields", "priority", "name"], "list_key": null, "value": ["Hot"]},
             {"key": ["issue", "fields", "issuetype", "subtask"], "list_key": null, "value": [false]}
         ],
-        "endpoint": "discord_embeded", # в айди айди евент, айди ендпоинта
-        ендпоинт айди; ссылается на айди ендпоинта
-        "template": "created_default", можно убрать
+        "endpoint": "discord_embeded",
+        "template": "created_default",
         "callback": "https://discordapp.com/api/webhooks/1086261129547878430/3gXse0GjXbg1EZHWsVCeP7-qF3pK08ZkjUEu-pC6u3wW_QNHkycftigVyAp6i_f78zQT"
     },
     {
