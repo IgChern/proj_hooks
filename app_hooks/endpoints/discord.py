@@ -24,6 +24,23 @@ class DiscordDirectEndpoint(EndpointInterfaceABC):
         return {'content': render_to_string(
             template=template, base_data=self.data_filter, jira_data=self.jira_data)}
 
+    def send_message(self) -> bool:
+
+        endpoint = EndpointInterface.objects.get(
+            id=self.data_filter['endpoint_id'])
+        print('***************')
+        print(endpoint)
+        response = requests.post(
+            endpoint.callback,
+            json=self.get_discord_post_data(endpoint)
+        )
+        print('***************')
+        print(response.json())
+        response.raise_for_status()
+        if response.status_code == 204:
+            return True
+        return False
+
 
 class DiscordEmbededEndpoint(DiscordDirectEndpoint):
     """ Рендер встроенного шаблона """

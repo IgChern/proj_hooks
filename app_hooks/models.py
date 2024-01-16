@@ -31,8 +31,8 @@ class EndpointInterface(PolymorphicModel):
         return self.name
 
     class Meta:
-        verbose_name = _('Base Endpoint')
-        verbose_name_plural = _('Base Endpoints')
+        verbose_name = _('Endpoint')
+        verbose_name_plural = _('All Endpoints')
 
 
 class EndpointDirect(EndpointInterface):
@@ -41,7 +41,7 @@ class EndpointDirect(EndpointInterface):
     template = models.TextField(_('Template'), blank=True)
 
     def __str__(self):
-        return self.template
+        return self.name
 
     class Meta:
         verbose_name = _('Direct Endpoint')
@@ -59,8 +59,8 @@ class EmbededFields(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _('Embeded Endpoint')
-        verbose_name_plural = _('Embeded Endpoints')
+        verbose_name = _('Embeded Field')
+        verbose_name_plural = _('Embeded Fields')
 
 
 class EndpointEmbeded(EndpointInterface):
@@ -99,17 +99,29 @@ class EndpointEmbeded(EndpointInterface):
         return result_string
 
     def get_discord_data(self, jira_data: dict):
+        # узнать за обязательные поля, добавить валидации, починить админку
+
+        priority_color = {
+            "Hot": "10038562",
+            "Highest": "15548997",
+            "High": "15105570",
+            "Medium": "15844367",
+            "Low": "2123412",
+            "Lowest": "3447003"
+        }
+
         data = {
             "embeds": [
                 {
                     "title": self.extract_keys(self.title, jira_data),
                     "description": self.extract_keys(self.description, jira_data),
                     "url": self.extract_keys(self.url, jira_data),
-                    "color": self.extract_keys(self.color, jira_data),
+                    "color": int(self.extract_keys(self.color, jira_data)) if self.color in priority_color.values() else '0',
                     "thumbnail": {
                         "url": self.thumbnail,
                         "height": 0.5,
                         "width": 0.5
+                        # узнать за размер иконки
                     },
                     "author": {
                         "name": self.extract_keys(self.author, jira_data),
@@ -117,7 +129,7 @@ class EndpointEmbeded(EndpointInterface):
                     "footer": {
                         "text": self.extract_keys(self.footer, jira_data),
                         "icon_url": "https://appevent.ru/img/logo_clean@2x.png"
-                        # добавить урл
+                        # добавить урл в модели
                     },
                     "fields": [
                         {
