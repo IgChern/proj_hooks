@@ -19,5 +19,8 @@ class EventViewSet(APIView):
 
     def post(self, request):
         data = request.data
-        process_jira_callback_task.apply_async(args=[data])
-        return Response("New task", status=HTTP_200_OK)
+        webhook_service = Service()
+        result = webhook_service.process_jira_callback(data)
+        return Response(result, status=HTTP_200_OK)
+        # process_jira_callback_task.apply_async(args=[data])
+        # return Response("New task", status=HTTP_200_OK)

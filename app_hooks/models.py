@@ -67,11 +67,11 @@ class EndpointEmbeded(EndpointInterface):
     ENDPOINT_TYPE = 'discord_embeded'
 
     title = models.CharField(('Title'), max_length=255, blank=False)
-    description = models.CharField(
-        ('Description'), max_length=255, blank=False)
+    description = models.TextField(
+        ('Description'), blank=False)
     url = models.URLField(_('Url'), blank=False)
     color = models.CharField(_('Color'), blank=False, max_length=15)
-    thumbnail = models.TextField(
+    thumbnail = models.URLField(
         _('Thumbnail'), null=True, blank=True)
     author = models.TextField(
         _('Author'), null=True, blank=True)
@@ -99,7 +99,6 @@ class EndpointEmbeded(EndpointInterface):
         return result_string
 
     def get_discord_data(self, jira_data: dict):
-
         data = {
             "embeds": [
                 {
@@ -107,14 +106,24 @@ class EndpointEmbeded(EndpointInterface):
                     "description": self.extract_keys(self.description, jira_data),
                     "url": self.extract_keys(self.url, jira_data),
                     "color": self.extract_keys(self.color, jira_data),
-                    "thumbnail": self.extract_keys(self.thumbnail, jira_data),
-                    "author": self.extract_keys(self.author, jira_data),
-                    "footer": self.extract_keys(self.footer, jira_data),
+                    "thumbnail": {
+                        "url": self.thumbnail,
+                        "height": 0.5,
+                        "width": 0.5
+                    },
+                    "author": {
+                        "name": self.extract_keys(self.author, jira_data),
+                    },
+                    "footer": {
+                        "text": self.extract_keys(self.footer, jira_data),
+                        "icon_url": "https://appevent.ru/img/logo_clean@2x.png"
+                        # добавить урл
+                    },
                     "fields": [
                         {
                             "name": self.extract_keys(field.name, jira_data),
                             "value": self.extract_keys(field.value, jira_data),
-                            "inline": self.extract_keys(field.inline, jira_data)
+                            "inline": field.inline
                         }
                         for field in self.fields.all()
                     ]

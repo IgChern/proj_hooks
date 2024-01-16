@@ -27,7 +27,7 @@ class CallbackParser(object):
     def _parse_single_filter(self, data_filter: Filter, data: dict) -> bool:
         if isinstance(data_filter, dict):
             data_filter = [data_filter]
-
+        print(data_filter)
         if data_filter and data_filter[0].get('key'):
             value: Any = get_dict_path_or_none(data, *data_filter[0]['key'])
             if value and isinstance(value, list) and data_filter[0].get('list_key'):
@@ -43,13 +43,13 @@ class CallbackParser(object):
 
         for data_filter in self._filters:
             print(data_filter)
-            filt = all([self._parse_single_filter(x, data)
+            filt = all([self._parse_single_filter(x['filters'], data)
                        for x in data_filter])
             print(filt)
             if filt:
                 matched_filters[data_filter[0]['id']] = {
-                    'name': data_filter[0]['name'], 'endpoint': data_filter[0]['endpoint'], 'template': data_filter[0]['template'],
-                    'callback': data_filter[0]['callback'], 'status': 0}
+                    'name': data_filter[0]['name'], 'endpoint': data_filter[0]['endpoint'],
+                    'status': 0}
 
                 result = False
 
