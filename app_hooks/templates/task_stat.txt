@@ -1,7 +1,0 @@
-**Задача закрыта**. Проект: **{{ jira_data.issue.fields.project.name }}**
-> {{ jira_data.issue.key }}: {{jira_data.issue.fields.summary}}
-> [https://jira.appevent.ru/browse/{{ jira_data.issue.key }}]
-> Оценка Frontend: **{{ jira_data.estimates.frontend_score }}** Оценка BackEnd: **{{jira_data.estimates.backend_score }}**
-{% for item in jira_data.estimates.estimates %}
-> **{{ item.assignee }}**: Затраченное время: **{{ item.time_spended }}** ; Количество Реопенов: **{{ item.reopen_count }}**
-{% endfor %}

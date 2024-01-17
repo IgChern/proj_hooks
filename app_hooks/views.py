@@ -4,6 +4,7 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.permissions import AllowAny
 from .webhook import Service
 # from .tasks import process_jira_callback_task
+from django.shortcuts import render
 
 import logging
 
@@ -19,8 +20,10 @@ class EventViewSet(APIView):
 
     def post(self, request):
         data = request.data
-        webhook_service = Service()
-        result = webhook_service.process_jira_callback(data)
+        result = self.service.process_jira_callback(data)
         return Response(result, status=HTTP_200_OK)
         # process_jira_callback_task.apply_async(args=[data])
         # return Response("New task", status=HTTP_200_OK)
+
+    def events(request):
+        return render(request, 'app_hooks/events.html')
