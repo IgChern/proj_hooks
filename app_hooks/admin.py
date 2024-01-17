@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Filter, EndpointEmbeded, EmbededFields, EndpointDirect, EndpointInterface
+from .models import Event, Filter, EndpointEmbeded, EmbededFields, EndpointDirect, EndpointInterface, EmbededFooter
 from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin
 
 
@@ -22,8 +22,19 @@ class EmbededAdmin(admin.ModelAdmin):
     list_display = ('name', 'value', 'inline')
 
 
+@admin.register(EmbededFooter)
+class EmbededAdmin(admin.ModelAdmin):
+    search_fields = ('text', 'icon_url')
+    list_display = ('text', 'icon_url')
+
+
 class EmbededFieldsInline(admin.TabularInline):
     model = EmbededFields
+    extra = 1
+
+
+class EmbededFooterInline(admin.TabularInline):
+    model = EmbededFooter
     extra = 1
 
 
@@ -35,7 +46,7 @@ class EndpointDirectAdmin(PolymorphicChildModelAdmin):
 @admin.register(EndpointEmbeded)
 class EndpointEmbededAdmin(PolymorphicChildModelAdmin):
     base_model = EndpointEmbeded
-    # inlines = [EmbededFieldsInline]
+    # inlines = [EmbededFieldsInline, EmbededFooterInline]
 
 
 @admin.register(EndpointInterface)

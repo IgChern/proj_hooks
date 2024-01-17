@@ -3,8 +3,7 @@ from typing import Any
 from ..templates import render_to_string
 import requests
 from jira import JIRA
-from ..models import EndpointEmbeded, EndpointDirect, EndpointInterface
-from polymorphic.models import PolymorphicModel
+from ..models import EndpointDirect, EndpointInterface
 
 # jira = JIRA('https://jira.appevent.ru', basic_auth=('<jira_username>', '<jira_password>'))
 
@@ -28,14 +27,10 @@ class DiscordDirectEndpoint(EndpointInterfaceABC):
 
         endpoint = EndpointInterface.objects.get(
             id=self.data_filter['endpoint_id'])
-        print('***************')
-        print(endpoint)
         response = requests.post(
             endpoint.callback,
             json=self.get_discord_post_data(endpoint)
         )
-        print('***************')
-        print(response.json())
         response.raise_for_status()
         if response.status_code == 204:
             return True
@@ -46,22 +41,17 @@ class DiscordEmbededEndpoint(DiscordDirectEndpoint):
     """ Рендер встроенного шаблона """
 
     def get_discord_post_data(self, endpoint) -> Any:
-        f = endpoint.get_discord_data(jira_data=self.jira_data)
-        print(f)
-        return f
+        post = endpoint.get_discord_data(jira_data=self.jira_data)
+        return post
 
     def send_message(self) -> bool:
 
         endpoint = EndpointInterface.objects.get(
             id=self.data_filter['endpoint_id'])
-        print('***************')
-        print(endpoint)
         response = requests.post(
             endpoint.callback,
             json=self.get_discord_post_data(endpoint)
         )
-        print('***************')
-        print(response.json())
         response.raise_for_status()
         if response.status_code == 204:
             return True

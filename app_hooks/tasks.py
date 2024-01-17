@@ -1,3 +1,4 @@
+'''
 from celery import shared_task
 from .webhook import Service
 import logging
@@ -18,3 +19,4 @@ def process_jira_callback_task(data: dict) -> dict:
     result = webhook_service.process_jira_callback(data)
     logger.info(result)
     return result
+    '''

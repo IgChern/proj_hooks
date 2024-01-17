@@ -1,3 +1,4 @@
+'''
 import os
 from celery import Celery
 
@@ -8,3 +9,4 @@ app = Celery('proj_webhook')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.autodiscover_tasks()
+'''

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.permissions import AllowAny
 from .webhook import Service
-from .tasks import process_jira_callback_task
+# from .tasks import process_jira_callback_task
 
 import logging
 

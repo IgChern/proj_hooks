@@ -5,6 +5,7 @@ from typing import List, Any, Dict
 from polymorphic.models import PolymorphicModel
 import re
 from .helpers import get_dict_path_or_none
+from django.core.exceptions import ValidationError
 
 
 class Filter(models.Model):
@@ -15,6 +16,12 @@ class Filter(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+
+        if not self.name:
+            raise ValidationError({'name': 'Name is required'})
 
     class Meta:
         verbose_name = _('Filter')
@@ -38,10 +45,22 @@ class EndpointInterface(PolymorphicModel):
 class EndpointDirect(EndpointInterface):
     ENDPOINT_TYPE = 'discord_direct'
 
-    template = models.TextField(_('Template'), blank=True)
+    template = models.TextField(_('Template'), blank=False)
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+
+        if not self.template:
+            raise ValidationError({'template': 'Template is required'})
+
+        if not self.name:
+            raise ValidationError({'name': 'Name is required'})
+
+        if not self.callback:
+            raise ValidationError({'callback': 'Callback is required'})
 
     class Meta:
         verbose_name = _('Direct Endpoint')
@@ -58,9 +77,30 @@ class EmbededFields(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        super().clean()
+
+        if not self.value:
+            raise ValidationError({'value': 'Value is required'})
+
     class Meta:
         verbose_name = _('Embeded Field')
         verbose_name_plural = _('Embeded Fields')
+
+
+class EmbededFooter(models.Model):
+
+    text = models.CharField(
+        max_length=255, null=True, blank=True)
+    icon_url = models.URLField(
+        _('Icon_URL'), null=True, blank=True)
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        verbose_name = _('Embeded Footer')
+        verbose_name_plural = _('Embeded Footers')
 
 
 class EndpointEmbeded(EndpointInterface):
@@ -69,14 +109,14 @@ class EndpointEmbeded(EndpointInterface):
     title = models.CharField(('Title'), max_length=255, blank=False)
     description = models.TextField(
         ('Description'), blank=False)
-    url = models.URLField(_('Url'), blank=False)
+    url = models.URLField(_('Url'), blank=True)
     color = models.CharField(_('Color'), blank=False, max_length=15)
     thumbnail = models.URLField(
         _('Thumbnail'), null=True, blank=True)
     author = models.TextField(
-        _('Author'), null=True, blank=True)
-    footer = models.TextField(
-        _('Footer'), null=True, blank=True)
+        _('Author'), null=True, blank=False)
+    footer = models.ManyToManyField(
+        EmbededFooter, related_name='footers')
     fields = models.ManyToManyField(EmbededFields, related_name='endpoint')
 
     def __str__(self):
@@ -85,6 +125,27 @@ class EndpointEmbeded(EndpointInterface):
     class Meta:
         verbose_name = _('Embeded Endpoint')
         verbose_name_plural = _('Embeded Endpoints')
+
+    def clean(self):
+        super().clean()
+
+        if not self.title:
+            raise ValidationError({'title': 'Title is required'})
+
+        if not self.description:
+            raise ValidationError({'description': 'Description is required'})
+
+        if not self.color:
+            raise ValidationError({'color': 'Color is required'})
+
+        if not self.author:
+            raise ValidationError({'author': 'Autor is required.'})
+
+        if not self.name:
+            raise ValidationError({'name': 'Name is required'})
+
+        if not self.callback:
+            raise ValidationError({'callback': 'Callback is required'})
 
     @staticmethod
     def extract_keys(template_string, jira_data):
@@ -119,17 +180,16 @@ class EndpointEmbeded(EndpointInterface):
                     "color": int(self.extract_keys(self.color, jira_data)) if self.color in priority_color.values() else '0',
                     "thumbnail": {
                         "url": self.thumbnail,
-                        "height": 0.5,
-                        "width": 0.5
-                        # узнать за размер иконки
+                        "height": 1,
+                        "width": 1
                     },
                     "author": {
                         "name": self.extract_keys(self.author, jira_data),
                     },
-                    "footer": {
-                        "text": self.extract_keys(self.footer, jira_data),
-                        "icon_url": "https://appevent.ru/img/logo_clean@2x.png"
-                        # добавить урл в модели
+                    "footer":
+                        {
+                            "text": self.footer.get().text,
+                            "icon_url": self.footer.get().icon_url
                     },
                     "fields": [
                         {
@@ -150,6 +210,12 @@ class Event(models.Model):
     filters = models.ManyToManyField(Filter, related_name='events')
     endpoints = models.ManyToManyField(
         EndpointInterface, blank=True, related_name='endpoints')
+
+    def clean(self):
+        super().clean()
+
+        if not self.name:
+            raise ValidationError({'name': 'Name is required'})
 
     def __str__(self):
         return self.name
