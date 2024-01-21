@@ -1,0 +1,8 @@
+{% block fields_form_content %}
+    <h2>Add embeded field</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ embededfields_form.as_p }}
+        <button type="submit" class="btn btn-primary">Save field</button>
+    </form>
+{% endblock %}

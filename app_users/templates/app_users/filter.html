@@ -1,0 +1,8 @@
+{% block filter_form_content %}
+    <h2>Add filter</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ filter_form.as_p }}
+        <button type="submit" class="btn btn-primary">Save filter</button>
+    </form>
+{% endblock %}
