@@ -4,11 +4,10 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.permissions import AllowAny
 from .webhook import Service
 # from .tasks import process_jira_callback_task
-from django.shortcuts import render
 from .models import Event, Filter, EndpointDirect, EmbededFields, EmbededFooter, EndpointEmbeded
 from django.views.generic import ListView
 from app_users.forms import FilterForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm, EventForm
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib import messages
 
 import logging
@@ -61,7 +60,7 @@ class EventListView(ListView):
                 data=formfilter.cleaned_data['data']
             )
             new_fields.save()
-            messages.success(request, 'Фильтр добавлен')
+            messages.success(request, 'Filter добавлен')
 
         elif formdirect.is_valid() and formdirect.cleaned_data:
             new_fields = EndpointDirect(
@@ -70,7 +69,7 @@ class EventListView(ListView):
                 template=formdirect.cleaned_data['template']
             )
             new_fields.save()
-            messages.success(request, 'Эндпоинт добавлен')
+            messages.success(request, 'Direct endpoint добавлен')
 
         elif formembededendpoint.is_valid() and formembededendpoint.cleaned_data:
             new_fields = EndpointEmbeded(
@@ -107,7 +106,7 @@ class EventListView(ListView):
                 inline=formembededfields.cleaned_data['inline']
             )
             new_fields.save()
-            messages.success(request, 'Fields добавлен')
+            messages.success(request, 'Field добавлен')
 
         elif formembededfooter.is_valid() and formembededfooter.cleaned_data:
             new_fields = EmbededFooter(

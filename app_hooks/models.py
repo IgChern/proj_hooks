@@ -96,7 +96,7 @@ class EmbededFooter(models.Model):
         _('Icon_URL'), null=True, blank=True)
 
     def __str__(self):
-        return self.text
+        return self.text or ''
 
     class Meta:
         verbose_name = _('Embeded Footer')
