@@ -1,71 +1,39 @@
 {% extends "app_users/base.html" %}
 
-{% block title %}Events app{% endblock %}
+{% block title %}
+    Events app
+{% endblock %}
 
-{% block content %}
-    <div class="container mt-5">
-        <h2 class="mb-4">Events app</h2>
-
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Список созданных Events</h3>
-                <ul class="list-group">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-success" role="alert">
-                                {{ message }}
-                            </div>
+{% block all_events %}
+<div class="container mt-3">
+    <h2>Созданные Ивенты</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ивенты</th>
+                <th>Фильтры</th>
+                <th>Эндпоинты</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <th>{{ forloop.counter }}</th>
+                    <td>{{ event.name }}</td>
+                    <td>
+                        {% for filter in event.filters.all %}
+                            {{ filter.name }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
-                    {% endif %}
-                    {% for event in events %}
-                        <li class="list-group-item d-flex flex-column align-items-start">
-                            <div>
-                                <span class="fw-bold">{{ forloop.counter }}. {{ event.name }}</span>
-                                <br>
-                                <span class="badge bg-primary rounded-pill mt-2">
-                                    Фильтры:
-                                    {% for filter_instance in event.filters.all %}
-                                        {{ filter_instance.name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </span>
-                            </div>
-                            <span class="badge bg-success rounded-pill mt-2">
-                                Эндпоинты:
-                                {% for endpoint in event.endpoints.all %}
-                                    {{ endpoint.name }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </span>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="col-md-6">
-                <h3>Формы для добавления полей</h3>
-                {% block filter_form_content %}
-                    {% include "app_users/filter.html" %}
-                {% endblock %}
-                <br>
-                {% block direct_form_content %}
-                    {% include "app_users/endpointdirect.html" %}
-                {% endblock %}
-                <br>
-                {% block fields_form_content %}
-                    {% include "app_users/embededfields.html" %}
-                {% endblock %}
-                <br>
-                {% block footer_form_content %}
-                    {% include "app_users/embededfooter.html" %}
-                {% endblock %}
-                <br>
-                {% block embeded_form_content %}
-                    {% include "app_users/endpointembeded.html" %}
-                {% endblock %}
-                <br>
-                {% block event_form_content %}
-                    {% include "app_users/event.html" %}
-                {% endblock %}
-            </div>
-        </div>
-    </div>
+                    </td>
+                    <td>
+                        {% for endpoint in event.endpoints.all %}
+                            {{ endpoint.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

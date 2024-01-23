@@ -35,34 +35,25 @@ class EventListView(ListView):
     template_name = 'app_hooks/events.html'
     context_object_name = 'events'
 
+    def get_queryset(self):
+        return Event.objects.all().order_by('name')
+
+
+class MakeDirectEndpoint(ListView):
+    model = Event
+    template_name = 'app_hooks/makedirectevent.html'
+    context_object_name = 'makeevent'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['filter_form'] = FilterForm()
             context['direct_form'] = EndpointDirectForm()
-            context['embededfields_form'] = EmbededFieldsForm()
-            context['footer_form'] = EmbededFooterForm()
-            context['embeded_form'] = EndpointEmbededForm()
-            context['event_form'] = EventForm()
         return context
 
     def post(self, request, *args, **kwargs):
-        formfilter = FilterForm(request.POST)
         formdirect = EndpointDirectForm(request.POST)
-        formembededfields = EmbededFieldsForm(request.POST)
-        formembededfooter = EmbededFooterForm(request.POST)
-        formembededendpoint = EndpointEmbededForm(request.POST)
-        formevent = EventForm(request.POST)
 
-        if formfilter.is_valid() and formfilter.cleaned_data['data'] is not None:
-            new_fields = Filter(
-                name=formfilter.cleaned_data['name'],
-                data=formfilter.cleaned_data['data']
-            )
-            new_fields.save()
-            messages.success(request, 'Filter добавлен')
-
-        elif formdirect.is_valid() and formdirect.cleaned_data:
+        if formdirect.is_valid() and formdirect.cleaned_data:
             new_fields = EndpointDirect(
                 name=formdirect.cleaned_data['name'],
                 callback=formdirect.cleaned_data['callback'],
@@ -71,7 +62,24 @@ class EventListView(ListView):
             new_fields.save()
             messages.success(request, 'Direct endpoint добавлен')
 
-        elif formembededendpoint.is_valid() and formembededendpoint.cleaned_data:
+        return redirect('make_events')
+
+
+class MakeEmbededEndpoint(ListView):
+    model = Event
+    template_name = 'app_hooks/makeembededevent.html'
+    context_object_name = 'makeevent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['embeded_form'] = EndpointEmbededForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        formembededendpoint = EndpointEmbededForm(request.POST)
+
+        if formembededendpoint.is_valid() and formembededendpoint.cleaned_data:
             new_fields = EndpointEmbeded(
                 name=formembededendpoint.cleaned_data['name'],
                 callback=formembededendpoint.cleaned_data['callback'],
@@ -88,7 +96,24 @@ class EventListView(ListView):
             new_fields.save()
             messages.success(request, 'Endpoint embeded добавлен')
 
-        elif formevent.is_valid() and formevent.cleaned_data:
+        return redirect('make_eventsembed')
+
+
+class MakeEvent(ListView):
+    model = Event
+    template_name = 'app_hooks/makeevent.html'
+    context_object_name = 'makeevent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['event_form'] = EventForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        formevent = EventForm(request.POST)
+
+        if formevent.is_valid() and formevent.cleaned_data:
             new_fields = Event(
                 name=formevent.cleaned_data['name']
             )
@@ -99,7 +124,28 @@ class EventListView(ListView):
             new_fields.save()
             messages.success(request, 'Event добавлен')
 
-        elif formembededfields.is_valid() and formembededfields.cleaned_data:
+        return redirect('make_events')
+
+
+class MakeEmbededFields(ListView):
+    model = Event
+    template_name = 'app_hooks/makefields.html'
+    context_object_name = 'makeevent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['filter_form'] = FilterForm()
+            context['embededfields_form'] = EmbededFieldsForm()
+            context['footer_form'] = EmbededFooterForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        formfilter = FilterForm(request.POST)
+        formembededfields = EmbededFieldsForm(request.POST)
+        formembededfooter = EmbededFooterForm(request.POST)
+
+        if formembededfields.is_valid():
             new_fields = EmbededFields(
                 name=formembededfields.cleaned_data['name'],
                 value=formembededfields.cleaned_data['value'],
@@ -108,7 +154,7 @@ class EventListView(ListView):
             new_fields.save()
             messages.success(request, 'Field добавлен')
 
-        elif formembededfooter.is_valid() and formembededfooter.cleaned_data:
+        elif formembededfooter.is_valid():
             new_fields = EmbededFooter(
                 text=formembededfooter.cleaned_data['text'],
                 icon_url=formembededfooter.cleaned_data['icon_url']
@@ -116,4 +162,12 @@ class EventListView(ListView):
             new_fields.save()
             messages.success(request, 'Footer добавлен')
 
-        return redirect('events')
+        elif formfilter.is_valid() and formfilter.cleaned_data['data'] is not None:
+            new_fields = Filter(
+                name=formfilter.cleaned_data['name'],
+                data=formfilter.cleaned_data['data']
+            )
+            new_fields.save()
+            messages.success(request, 'Filter добавлен')
+
+        return redirect('make_embedfields')

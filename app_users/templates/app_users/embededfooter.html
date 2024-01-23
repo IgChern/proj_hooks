@@ -1,8 +1,10 @@
 {% block footer_form_content %}
-    <h2>Add embeded footer</h2>
+    <h2>Заполните форму для добавления Footer</h2>
     <form method="post">
-        {% csrf_token %}
-        {{ footer_form.as_p }}
-        <button type="submit" class="btn btn-primary">Save footer</button>
+        <div class="mb-3 form-control">
+            {% csrf_token %}
+            {{ footer_form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-outline-warning">Save footer</button>
     </form>
 {% endblock %}

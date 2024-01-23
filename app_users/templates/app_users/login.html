@@ -1,21 +1,20 @@
 {% extends "app_users/base.html" %}
+{% load static %}
 
 {% block title %}Авторизация{% endblock %}
 
-{% block content %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Авторизация</h1>
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form.username.label_tag }}
-                {{ form.username }}
-            </div>
-            <div class="mb-3">
-                {{ form.password.label_tag }}
-                {{ form.password }}
-            </div>
-            <button type="submit" class="btn btn-primary">Войти</button>
-        </form>
+{% block login_form %}
+    <h1 class="mb-4 text-center heading-style">Авторизация</h1>
+    <form method="post">
+        <div class="center-block">
+        {% csrf_token %}
+        <div class="mb-3 yellow-highlight-form">
+            {{ form.username }}
+        </div>
+        <div class="mb-3 yellow-highlight-form">
+            {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-outline-warning">Войти</button>
+    </form>
     </div>
 {% endblock %}

@@ -11,8 +11,8 @@ from django.core.exceptions import ValidationError
 class Filter(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
-    data = JSONField(
-        _('Filter Data'), default=None, null=True, blank=True)
+    data = models.CharField(
+        _('Filter Data'), default=None, null=True, blank=True, max_length=255,)
 
     def __str__(self):
         return self.name
@@ -21,7 +21,7 @@ class Filter(models.Model):
         super().clean()
 
         if not self.name:
-            raise ValidationError({'name': 'Name is required'})
+            raise ValidationError({'filter': 'Filter is required'})
 
     class Meta:
         verbose_name = _('Filter')

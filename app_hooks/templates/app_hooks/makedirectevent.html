@@ -1,0 +1,13 @@
+{% extends "app_users/base.html" %}
+
+{% block title %}Events app{% endblock %}
+
+{% block all_events %}
+    <div class="col-md-12">
+        <br>
+        {% block direct_form_content %}
+            {% include "app_users/endpointdirect.html" %}
+        {% endblock %}
+        <br>
+</div>
+{% endblock %}
