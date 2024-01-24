@@ -51,18 +51,20 @@ class MakeDirectEndpoint(ListView):
         return context
 
     def post(self, request, *args, **kwargs):
-        formdirect = EndpointDirectForm(request.POST)
+        form = EndpointDirectForm(request.POST)
 
-        if formdirect.is_valid() and formdirect.cleaned_data:
+        if form.is_valid() and form.cleaned_data:
             new_fields = EndpointDirect(
-                name=formdirect.cleaned_data['name'],
-                callback=formdirect.cleaned_data['callback'],
-                template=formdirect.cleaned_data['template']
+                name=form.cleaned_data['name'],
+                callback=form.cleaned_data['callback'],
+                template=form.cleaned_data['template']
             )
             new_fields.save()
             messages.success(request, 'Direct endpoint добавлен')
-
-        return redirect('make_events')
+            return redirect('make_eventdirect')
+        else:
+            form = EndpointDirectForm()
+        return redirect(request, "make_directevent.html", {"form": form})
 
 
 class MakeEmbededEndpoint(ListView):
@@ -77,26 +79,28 @@ class MakeEmbededEndpoint(ListView):
         return context
 
     def post(self, request, *args, **kwargs):
-        formembededendpoint = EndpointEmbededForm(request.POST)
+        form = EndpointEmbededForm(request.POST)
 
-        if formembededendpoint.is_valid() and formembededendpoint.cleaned_data:
+        if form.is_valid() and form.cleaned_data:
             new_fields = EndpointEmbeded(
-                name=formembededendpoint.cleaned_data['name'],
-                callback=formembededendpoint.cleaned_data['callback'],
-                title=formembededendpoint.cleaned_data['title'],
-                description=formembededendpoint.cleaned_data['description'],
-                url=formembededendpoint.cleaned_data['url'],
-                color=formembededendpoint.cleaned_data['color'],
-                thumbnail=formembededendpoint.cleaned_data['thumbnail'],
-                author=formembededendpoint.cleaned_data['author']
+                name=form.cleaned_data['name'],
+                callback=form.cleaned_data['callback'],
+                title=form.cleaned_data['title'],
+                description=form.cleaned_data['description'],
+                url=form.cleaned_data['url'],
+                color=form.cleaned_data['color'],
+                thumbnail=form.cleaned_data['thumbnail'],
+                author=form.cleaned_data['author']
             )
             new_fields.save()
-            new_fields.footer.set(formembededendpoint.cleaned_data['footer'])
-            new_fields.fields.set(formembededendpoint.cleaned_data['fields'])
+            new_fields.footer.set(form.cleaned_data['footer'])
+            new_fields.fields.set(form.cleaned_data['fields'])
             new_fields.save()
             messages.success(request, 'Endpoint embeded добавлен')
-
-        return redirect('make_eventsembed')
+            return redirect('make_eventembed')
+        else:
+            form = EndpointEmbededForm()
+        return redirect(request, "makeembededevent.html", {"form": form})
 
 
 class MakeEvent(ListView):
@@ -111,20 +115,22 @@ class MakeEvent(ListView):
         return context
 
     def post(self, request, *args, **kwargs):
-        formevent = EventForm(request.POST)
+        form = EventForm(request.POST)
 
-        if formevent.is_valid() and formevent.cleaned_data:
+        if form.is_valid() and form.cleaned_data:
             new_fields = Event(
-                name=formevent.cleaned_data['name']
+                name=form.cleaned_data['name']
             )
             new_fields.save()
-            new_fields.filters.set(formevent.cleaned_data['filters'])
+            new_fields.filters.set(form.cleaned_data['filters'])
             new_fields.endpoints.set(
-                formevent.cleaned_data['endpoints'])
+                form.cleaned_data['endpoints'])
             new_fields.save()
             messages.success(request, 'Event добавлен')
-
-        return redirect('make_events')
+            return redirect('make_event')
+        else:
+            form = EventForm()
+        return redirect(request, "makeevent.html", {"form": form})
 
 
 class MakeEmbededFields(ListView):
@@ -153,6 +159,16 @@ class MakeEmbededFields(ListView):
             )
             new_fields.save()
             messages.success(request, 'Field добавлен')
+            return redirect('make_embededfields')
+
+        elif formfilter.is_valid():
+            new_fields = Filter(
+                name=formfilter.cleaned_data['name'],
+                data=formfilter.cleaned_data['data']
+            )
+            new_fields.save()
+            messages.success(request, 'Filter добавлен')
+            return redirect('make_embededfields')
 
         elif formembededfooter.is_valid():
             new_fields = EmbededFooter(
@@ -161,13 +177,12 @@ class MakeEmbededFields(ListView):
             )
             new_fields.save()
             messages.success(request, 'Footer добавлен')
+            return redirect('make_embededfields')
 
-        elif formfilter.is_valid() and formfilter.cleaned_data['data'] is not None:
-            new_fields = Filter(
-                name=formfilter.cleaned_data['name'],
-                data=formfilter.cleaned_data['data']
-            )
-            new_fields.save()
-            messages.success(request, 'Filter добавлен')
-
-        return redirect('make_embedfields')
+        else:
+            formfilter = FilterForm()
+            formembededfields = EmbededFieldsForm()
+            formembededfooter = EmbededFooterForm()
+        return redirect(request, "makeevent.html", {"formfilter": formfilter,
+                                                    "formembededfields": formembededfields,
+                                                    "formembededfooter": formembededfooter})

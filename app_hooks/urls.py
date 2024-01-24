@@ -6,12 +6,12 @@ urlpatterns = [
     path('jira-callback/', EventViewSet.as_view(), name='jira-callback'),
     path('events/', login_required(EventListView.as_view()), name='events'),
     path('make_eventdirect/',
-         login_required(MakeDirectEndpoint.as_view()), name='make_events'),
+         login_required(MakeDirectEndpoint.as_view()), name='make_eventdirect'),
     path('make_eventembed/', login_required(MakeEmbededEndpoint.as_view()),
-         name='make_eventsembed'),
+         name='make_eventembed'),
     path('make_event/', login_required(MakeEvent.as_view()),
-         name='make_eventsembed'),
+         name='make_event'),
     path('make_embededfields/', login_required(MakeEmbededFields.as_view()),
-         name='make_embedfields'),
+         name='make_embededfields'),
 
 ]

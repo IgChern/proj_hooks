@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 class Filter(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
-    data = models.CharField(
+    data = JSONField(
         _('Filter Data'), default=None, null=True, blank=True, max_length=255,)
 
     def __str__(self):

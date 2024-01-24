@@ -1,9 +1,11 @@
 {% block footer_form_content %}
     <h2>Заполните форму для добавления Footer</h2>
     <form method="post">
-        <div class="mb-3 form-control">
-            {% csrf_token %}
-            {{ footer_form.as_p }}
+        <div class="mb-3">
+            <div class="form-control">
+                {% csrf_token %}
+                {{ footer_form.as_p }}
+            </div>
         </div>
         <button type="submit" class="btn btn-outline-warning">Save footer</button>
     </form>
