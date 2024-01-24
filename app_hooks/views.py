@@ -40,7 +40,7 @@ class EventListView(ListView):
 
 
 class MakeDirectEndpoint(ListView):
-    model = Event
+    model = EndpointDirect
     template_name = 'app_hooks/makedirectevent.html'
     context_object_name = 'makeevent'
 
@@ -68,7 +68,7 @@ class MakeDirectEndpoint(ListView):
 
 
 class MakeEmbededEndpoint(ListView):
-    model = Event
+    model = EndpointEmbeded
     template_name = 'app_hooks/makeembededevent.html'
     context_object_name = 'makeevent'
 
@@ -133,56 +133,86 @@ class MakeEvent(ListView):
         return redirect(request, "makeevent.html", {"form": form})
 
 
-class MakeEmbededFields(ListView):
-    model = Event
-    template_name = 'app_hooks/makefields.html'
+class MakeFilter(ListView):
+    model = Filter
+    template_name = 'app_hooks/makefilter.html'
     context_object_name = 'makeevent'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['filter_form'] = FilterForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = FilterForm(request.POST)
+
+        if form.is_valid():
+            new_fields = Filter(
+                name=form.cleaned_data['name'],
+                data=form.cleaned_data['data']
+            )
+            new_fields.save()
+            messages.success(request, 'Filter добавлен')
+            return redirect('make_filter')
+        else:
+            form = FilterForm()
+
+        return redirect(request, "makefilter.html", {"form": form})
+
+
+class MakeFields(ListView):
+    model = EmbededFields
+    template_name = 'app_hooks/makefields.html'
+    context_object_name = 'makeevent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
             context['embededfields_form'] = EmbededFieldsForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = EmbededFieldsForm(request.POST)
+
+        if form.is_valid():
+            new_fields = EmbededFields(
+                name=form.cleaned_data['name'],
+                value=form.cleaned_data['value'],
+                inline=form.cleaned_data['inline']
+            )
+            new_fields.save()
+            messages.success(request, 'Field добавлен')
+            return redirect('make_fields')
+        else:
+            form = EmbededFieldsForm()
+
+        return redirect(request, "makefields.html", {"form": form})
+
+
+class MakeFooter(ListView):
+    model = EmbededFooter
+    template_name = 'app_hooks/makefooter.html'
+    context_object_name = 'makeevent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
             context['footer_form'] = EmbededFooterForm()
         return context
 
     def post(self, request, *args, **kwargs):
-        formfilter = FilterForm(request.POST)
-        formembededfields = EmbededFieldsForm(request.POST)
-        formembededfooter = EmbededFooterForm(request.POST)
+        form = EmbededFooterForm(request.POST)
 
-        if formembededfields.is_valid():
-            new_fields = EmbededFields(
-                name=formembededfields.cleaned_data['name'],
-                value=formembededfields.cleaned_data['value'],
-                inline=formembededfields.cleaned_data['inline']
-            )
-            new_fields.save()
-            messages.success(request, 'Field добавлен')
-            return redirect('make_embededfields')
-
-        elif formfilter.is_valid():
-            new_fields = Filter(
-                name=formfilter.cleaned_data['name'],
-                data=formfilter.cleaned_data['data']
-            )
-            new_fields.save()
-            messages.success(request, 'Filter добавлен')
-            return redirect('make_embededfields')
-
-        elif formembededfooter.is_valid():
+        if form.is_valid():
             new_fields = EmbededFooter(
-                text=formembededfooter.cleaned_data['text'],
-                icon_url=formembededfooter.cleaned_data['icon_url']
+                text=form.cleaned_data['text'],
+                icon_url=form.cleaned_data['icon_url']
             )
             new_fields.save()
             messages.success(request, 'Footer добавлен')
-            return redirect('make_embededfields')
+            return redirect('make_footer')
 
         else:
-            formfilter = FilterForm()
-            formembededfields = EmbededFieldsForm()
-            formembededfooter = EmbededFooterForm()
-        return redirect(request, "makeevent.html", {"formfilter": formfilter,
-                                                    "formembededfields": formembededfields,
-                                                    "formembededfooter": formembededfooter})
+            form = EmbededFooterForm()
+        return redirect(request, "makefooter.html", {"form": form})
