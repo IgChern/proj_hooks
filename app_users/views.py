@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import LoginUserForm, FilterForm, EventForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm
+from .forms import LoginUserForm
 from django.contrib.auth import authenticate, login, logout
 
 

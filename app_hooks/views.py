@@ -1,3 +1,5 @@
+from typing import Any
+from django.core.paginator import Paginator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
@@ -7,9 +9,9 @@ from .webhook import Service
 from .models import Event, Filter, EndpointDirect, EmbededFields, EmbededFooter, EndpointEmbeded
 from django.views.generic import ListView
 from app_users.forms import FilterForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm, EventForm
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib import messages
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import logging
 
 logger = logging.getLogger('app_hooks')
@@ -37,6 +39,18 @@ class EventListView(ListView):
 
     def get_queryset(self):
         return Event.objects.all().order_by('name')
+
+    def get(self, request):
+        eventsobj = Event.objects.all().order_by('name')
+        page = request.GET.get('page', 1)
+        paginator = Paginator(eventsobj, 5)
+        try:
+            events = paginator.page(page)
+        except PageNotAnInteger:
+            events = paginator.page(1)
+        except EmptyPage:
+            events = paginator.page(paginator.num_pages)
+        return render(request, self.template_name, {'events': events})
 
 
 class MakeDirectEndpoint(ListView):

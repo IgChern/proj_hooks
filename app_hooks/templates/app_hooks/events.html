@@ -35,5 +35,28 @@
             {% endfor %}
         </tbody>
     </table>
+    <nav aria-label="...">
+        {% if events.has_other_pages %}
+            <ul class="pagination">
+                {% if events.has_previous %}
+                    <li class="page-item"><a class="btn btn-outline-warning" style="margin-right: 10px;" href="?page={{ events.previous_page_number }}">Предыдущая</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="btn btn-outline-warning" style="margin-right: 10px;">Предыдущая</span></li>
+                {% endif %}
+                {% for i in events.paginator.page_range %}
+                    {% if events.number == i %}
+                    <li class="page-item active" aria-current="page"><a class="btn btn-warning" style="margin-right: 10px;" href="#">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="btn btn-outline-warning btn-outline-warning" style="margin-right: 10px;" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if events.has_next %}
+                    <li class="page-item"><a class="btn btn-outline-warning" style="margin-right: 10px;" href="?page={{ events.next_page_number }}">Следующая</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="btn btn-outline-warning" style="margin-right: 10px;">Следующая</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+        </nav>
 </div>
 {% endblock %}
