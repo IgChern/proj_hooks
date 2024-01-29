@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+{% block content %}
+  <h2>Изменение данных</h2>
+  <form method="post" action="{% url 'events:upd_events' pk=event.id %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-secondary">Изменить</button>
+  </form>
+{% endblock %}

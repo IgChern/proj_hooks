@@ -12,7 +12,7 @@ class Filter(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
     data = JSONField(
-        _('Filter Data'), default=None, null=True, blank=True, max_length=255,)
+        _('Filter Data'), default=dict, null=True, blank=True, max_length=255,)
 
     def __str__(self):
         return self.name

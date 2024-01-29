@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import LoginUserForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 
 def login_user(request):
@@ -12,7 +13,7 @@ def login_user(request):
                 request, username=cd['username'], password=cd['password'])
             if user and user.is_active:
                 login(request, user)
-                return redirect('events')
+                return redirect('events:events')
     else:
         form = LoginUserForm()
     return render(request, 'app_users/login.html', {'form': form})

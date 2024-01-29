@@ -1,10 +1,10 @@
-{% block event_form_content %}
-    <h2>Заполните форму для добавления Event</h2>
-    <form method="post">
-        <div class="mb-3 form-control">
-            {% csrf_token %}
-            {{ event_form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-outline-warning">Save event</button>
-    </form>
+{% load crispy_forms_tags %} {% block event_form_content %}
+<h2>Заполните форму для добавления Event</h2>
+<form method="post">
+  <div class="mb-3 form-control">
+    {% csrf_token %} 
+    {{event_form|crispy}}
+  </div>
+  <button type="submit" class="btn btn-outline-warning">Save event</button>
+</form>
 {% endblock %}

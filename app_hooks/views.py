@@ -1,6 +1,6 @@
 from typing import Any
 from django.core.paginator import Paginator
-from rest_framework.views import APIView
+from rest_framework.views import APIView, View
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.permissions import AllowAny
@@ -10,8 +10,9 @@ from .models import Event, Filter, EndpointDirect, EmbededFields, EmbededFooter,
 from django.views.generic import ListView
 from app_users.forms import FilterForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm, EventForm
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic.edit import DeleteView, UpdateView
 import logging
 
 logger = logging.getLogger('app_hooks')
@@ -36,21 +37,10 @@ class EventListView(ListView):
     model = Event
     template_name = 'app_hooks/events.html'
     context_object_name = 'events'
+    paginate_by = 5
 
     def get_queryset(self):
         return Event.objects.all().order_by('name')
-
-    def get(self, request):
-        eventsobj = Event.objects.all().order_by('name')
-        page = request.GET.get('page', 1)
-        paginator = Paginator(eventsobj, 5)
-        try:
-            events = paginator.page(page)
-        except PageNotAnInteger:
-            events = paginator.page(1)
-        except EmptyPage:
-            events = paginator.page(paginator.num_pages)
-        return render(request, self.template_name, {'events': events})
 
 
 class MakeDirectEndpoint(ListView):
@@ -75,7 +65,7 @@ class MakeDirectEndpoint(ListView):
             )
             new_fields.save()
             messages.success(request, 'Direct endpoint добавлен')
-            return redirect('make_eventdirect')
+            return redirect('events:make_eventdirect')
         else:
             form = EndpointDirectForm()
         return redirect(request, "make_directevent.html", {"form": form})
@@ -111,7 +101,7 @@ class MakeEmbededEndpoint(ListView):
             new_fields.fields.set(form.cleaned_data['fields'])
             new_fields.save()
             messages.success(request, 'Endpoint embeded добавлен')
-            return redirect('make_eventembed')
+            return redirect('events:make_eventembed')
         else:
             form = EndpointEmbededForm()
         return redirect(request, "makeembededevent.html", {"form": form})
@@ -141,7 +131,7 @@ class MakeEvent(ListView):
                 form.cleaned_data['endpoints'])
             new_fields.save()
             messages.success(request, 'Event добавлен')
-            return redirect('make_event')
+            return redirect('events:make_event')
         else:
             form = EventForm()
         return redirect(request, "makeevent.html", {"form": form})
@@ -168,7 +158,7 @@ class MakeFilter(ListView):
             )
             new_fields.save()
             messages.success(request, 'Filter добавлен')
-            return redirect('make_filter')
+            return redirect('events:make_filter')
         else:
             form = FilterForm()
 
@@ -197,7 +187,7 @@ class MakeFields(ListView):
             )
             new_fields.save()
             messages.success(request, 'Field добавлен')
-            return redirect('make_fields')
+            return redirect('events:make_fields')
         else:
             form = EmbededFieldsForm()
 
@@ -225,8 +215,24 @@ class MakeFooter(ListView):
             )
             new_fields.save()
             messages.success(request, 'Footer добавлен')
-            return redirect('make_footer')
+            return redirect('events:make_footer')
 
         else:
             form = EmbededFooterForm()
         return redirect(request, "makefooter.html", {"form": form})
+
+
+class EventDeleteView(DeleteView):
+    model = Event
+    success_url = reverse_lazy('events:events')
+
+    def get_success_url(self):
+        messages.success(self.request, f'Event {self.object.name} удален')
+        return super().get_success_url()
+
+
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'app_hooks/update.html'
+    success_url = reverse_lazy('events:upd_events')

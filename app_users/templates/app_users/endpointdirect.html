@@ -1,11 +1,7 @@
-{% block direct_form_content %}
-    <h2>Заполните форму для добавления endpoint_direct</h2>
-    <form method="post">
-        <div class="mb-3 form-control">
-            {% csrf_token %}
-            {{ direct_form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-outline-warning">Save endpoint</button>
-    </form>
+{% load crispy_forms_tags %} {% block direct_form_content %}
+<h2>Заполните форму для добавления endpoint_direct</h2>
+<form method="post">
+  <div class="mb-3 form-control">{% csrf_token %} {{direct_form|crispy}}</div>
+  <button type="submit" class="btn btn-outline-warning">Save endpoint</button>
+</form>
 {% endblock %}
-

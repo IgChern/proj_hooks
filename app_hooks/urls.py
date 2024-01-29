@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import EventViewSet, EventListView, MakeDirectEndpoint, MakeEmbededEndpoint, MakeEvent, MakeFields, MakeFilter, MakeFooter
+from .views import (EventViewSet, EventListView, MakeDirectEndpoint,
+                    MakeEmbededEndpoint, MakeEvent, MakeFields, MakeFilter, MakeFooter,
+                    EventDeleteView, EventUpdateView)
 from django.contrib.auth.decorators import login_required
+
+app_name = 'events'
 
 urlpatterns = [
     path('jira-callback/', EventViewSet.as_view(), name='jira-callback'),
@@ -17,5 +21,9 @@ urlpatterns = [
          name='make_filter'),
     path('make_footer/', login_required(MakeFooter.as_view()),
          name='make_footer'),
+    path('events/<int:pk>/delete', login_required(EventDeleteView.as_view()),
+         name='del_events'),
+    path('events/<int:pk>/update', login_required(EventUpdateView.as_view()),
+         name='upd_events'),
 
 ]

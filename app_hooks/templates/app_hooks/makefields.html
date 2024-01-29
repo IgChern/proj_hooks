@@ -1,13 +1,10 @@
 {% extends "app_users/base.html" %}
-
 {% block title %}Events app{% endblock %}
-
 {% block all_events %}
 <div class="col-md-12">
-    <br>
-    {% block fields_form_content %}
-        {% include "app_users/embededfields.html" %}
-    {% endblock %}
-    <br>
+  <br/>
+  {% block fields_form_content %} {% include "app_users/embededfields.html" %}
+  {% endblock %}
+  <br/>
 </div>
 {% endblock %}

@@ -2,8 +2,9 @@
 {% block title %}Events app{% endblock %}
 {% block all_events %}
 <div class="col-md-12">
-  <br/>
-  {% block event_form_content %} {% include "app_users/event.html" %} {% endblock %}
-  <br/>
+    <br/>
+    {% block update_form_content %} {% include "app_users/content_update.html" %}
+    {% endblock %}
+    <br/>
 </div>
 {% endblock %}
