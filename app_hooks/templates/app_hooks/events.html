@@ -1,7 +1,7 @@
 {% extends "app_users/base.html" %} {% block title %} Events app {% endblock %}
 {% block all_events %}
 <div class="container mt-3">
-  <h2>Созданные Ивенты</h2>
+  <h2>Список созданных Ивентов</h2>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -9,6 +9,8 @@
         <th>Ивенты</th>
         <th>Фильтры</th>
         <th>Эндпоинты</th>
+        <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -86,6 +88,8 @@
               </div>
             </div>
           </div>
+        </td>
+        <td>
           <div>
             <form
               method="post"

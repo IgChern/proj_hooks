@@ -1,6 +1,7 @@
 from django import forms
 from app_hooks.models import Filter, EmbededFooter, EmbededFields, EndpointDirect, EndpointEmbeded, Event
-from django.forms.widgets import Textarea
+
+from django.forms import inlineformset_factory
 
 
 class LoginUserForm(forms.Form):
@@ -84,8 +85,8 @@ class EndpointEmbededForm(forms.ModelForm):
             'color': 'Данные color',
             'thumbnail': 'Данные thumbnail(url)',
             'author': 'Данные author',
-            'fields': 'Выберите fields',
-            'footer': 'Выберите footer'
+            'fields': 'Выберите fields или добавьте новый',
+            'footer': 'Выберите footer или добавьте новый'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -106,9 +107,9 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ['name', 'filters', 'endpoints']
         labels = {
-            'name': 'Название Ивента',
-            'filters': 'Выберите filter',
-            'endpoints': 'Выберите endpoint'
+            'name': 'Введите название Ивента',
+            'filters': 'Выберите filter из списка или добавьте новый',
+            'endpoints': 'Выберите endpoint из списка или добавьте новый'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),

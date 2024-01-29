@@ -1,6 +1,25 @@
 {% load crispy_forms_tags %}
 {% block content %}
-  <h2>Изменение данных</h2>
+  <p><dt>Выбранный ивент: {{ event.name }}</p></dt>
+  <p><dt>Выбранные фильтры: 
+    {% if event.filters.all %}
+      {% for filter in event.filters.all %} {{ filter.name }}
+        {% if not forloop.last %}, {% endif %} 
+      {% endfor %}
+    {% else %}
+      Нет выбранных фильтров
+    {% endif %}
+  </p></dt>
+  <p><dt>Выбранные эндпойнты: 
+    {% if event.endpoints.all %}
+      {% for endpoint in event.endpoints.all %} {{ endpoint.name }}
+        {% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    {% else %}
+      Нет выбранных эндпойнтов
+    {% endif %}
+  </p></dt>
+  <h1>Пожалуйста, внесите изменения: </h1>   
   <form method="post" action="{% url 'events:upd_events' pk=event.id %}">
     {% csrf_token %}
     {{ form|crispy }}

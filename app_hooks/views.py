@@ -64,8 +64,9 @@ class MakeDirectEndpoint(ListView):
                 template=form.cleaned_data['template']
             )
             new_fields.save()
-            messages.success(request, 'Direct endpoint добавлен')
-            return redirect('events:make_eventdirect')
+            messages.success(
+                request, f'Direct endpoint {new_fields.name} добавлен')
+            return redirect('events:make_event')
         else:
             form = EndpointDirectForm()
         return redirect(request, "make_directevent.html", {"form": form})
@@ -100,8 +101,9 @@ class MakeEmbededEndpoint(ListView):
             new_fields.footer.set(form.cleaned_data['footer'])
             new_fields.fields.set(form.cleaned_data['fields'])
             new_fields.save()
-            messages.success(request, 'Endpoint embeded добавлен')
-            return redirect('events:make_eventembed')
+            messages.success(
+                request, f'Endpoint embeded {new_fields.name} добавлен')
+            return redirect('events:make_event')
         else:
             form = EndpointEmbededForm()
         return redirect(request, "makeembededevent.html", {"form": form})
@@ -130,8 +132,8 @@ class MakeEvent(ListView):
             new_fields.endpoints.set(
                 form.cleaned_data['endpoints'])
             new_fields.save()
-            messages.success(request, 'Event добавлен')
-            return redirect('events:make_event')
+            messages.success(request, f"Event {new_fields.name} добавлен")
+            return redirect('events:events')
         else:
             form = EventForm()
         return redirect(request, "makeevent.html", {"form": form})
@@ -157,8 +159,8 @@ class MakeFilter(ListView):
                 data=form.cleaned_data['data']
             )
             new_fields.save()
-            messages.success(request, 'Filter добавлен')
-            return redirect('events:make_filter')
+            messages.success(request, f'Filter {new_fields.name} добавлен')
+            return redirect('events:make_event')
         else:
             form = FilterForm()
 
@@ -186,8 +188,8 @@ class MakeFields(ListView):
                 inline=form.cleaned_data['inline']
             )
             new_fields.save()
-            messages.success(request, 'Field добавлен')
-            return redirect('events:make_fields')
+            messages.success(request, f'Field {new_fields.name} добавлен')
+            return redirect('events:make_eventembed')
         else:
             form = EmbededFieldsForm()
 
@@ -214,8 +216,8 @@ class MakeFooter(ListView):
                 icon_url=form.cleaned_data['icon_url']
             )
             new_fields.save()
-            messages.success(request, 'Footer добавлен')
-            return redirect('events:make_footer')
+            messages.success(request, f'Footer {new_fields.text} добавлен')
+            return redirect('events:make_eventembed')
 
         else:
             form = EmbededFooterForm()
@@ -236,3 +238,7 @@ class EventUpdateView(UpdateView):
     form_class = EventForm
     template_name = 'app_hooks/update.html'
     success_url = reverse_lazy('events:upd_events')
+
+    def get_success_url(self):
+        messages.success(self.request, f'Event изменен')
+        return reverse_lazy('events:upd_events', kwargs={'pk': self.object.pk})
