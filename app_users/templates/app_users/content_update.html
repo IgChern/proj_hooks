@@ -2,9 +2,13 @@
 {% load helper_tags %}
 {% block content %}
   <h1>Пожалуйста, внесите изменения: </h1>   
+  <div class="col-8 my-4">
+    <p class="h1 mb-0">СТАТУС: {% if form.instance.draft %}<span class="text-success">ОПУБЛИКОВАН</span>{% else %}<span class="text-warning">ЧЕРНОВИК</span>{% endif %}</p>
+  </div>
   <form method="post" action="{% url 'events:upd_events' pk=event_id %}">
     {% csrf_token %}
     {{ form|crispy }}
-    <button type="submit" class="btn btn-secondary">Изменить</button>
+    <button type="submit" name="notpub_button" class="btn btn-secondary">Сохранить как черновик</button>
+    <button type="submit" name="pub_button" class="btn btn-warning">Сохранить для публикации</button>
   </form>
 {% endblock %}

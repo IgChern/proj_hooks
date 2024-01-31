@@ -210,6 +210,7 @@ class Event(models.Model):
     filters = models.ManyToManyField(Filter, related_name='events')
     endpoints = models.ManyToManyField(
         EndpointInterface, blank=True, related_name='endpoints')
+    draft = models.BooleanField(default=True)
 
     def clean(self):
         super().clean()

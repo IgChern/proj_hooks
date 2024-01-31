@@ -10,6 +10,7 @@
         <th>Ивенты</th>
         <th>Фильтры</th>
         <th>Эндпоинты</th>
+        <th>Статус</th>
         <th></th>
         <th></th>
       </tr>
@@ -28,6 +29,13 @@
           {% for endpoint in event.endpoints.all %} {{ endpoint.name }}
           {% if not forloop.last %}, {% endif %}
           {% endfor %}
+        </td>
+        <td>
+          {% if event.draft %}
+            <span class="text-success">ОПУБЛИКОВАН</span>
+          {% else %}
+            <span class="text-warning">ЧЕРНОВИК</span>
+          {% endif %}
         </td>
         <td>
           <button
@@ -92,21 +100,14 @@
         </td>
         <td>
           <div>
-            <form
-              method="post"
-              action="{% url 'events:upd_events' pk=event.id %}"
-            >
-              {% csrf_token %}
-              <input
-                type="hidden"
-                name="next"
-                value="{{ request.path }}"
-              />
-              <button type="submit" class="btn btn-secondary">
-                Изменить
-              </button>
+            <form method="post" action="{% url 'events:upd_events' pk=event.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn btn-secondary">
+                        Изменить
+                    </button>
             </form>
-          </div>
+        </div>
         </td>
       </tr>
       {% endfor %}

@@ -179,6 +179,10 @@ class EventUpdateView(UpdateView):
         form = EventForm(request.POST, instance=post)
         if form.is_valid():
             post = form.save(commit=False)
+            if 'notpub_button' in request.POST:
+                post.draft = False
+            elif 'pub_button' in request.POST:
+                post.draft = True
             post.save()
             form.save_m2m()
             messages.success(request, f"Event {post.name} обновлен")
