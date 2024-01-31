@@ -1,5 +1,4 @@
-from typing import Any
-from django.core.paginator import Paginator
+from django.forms.models import BaseModelForm
 from rest_framework.views import APIView, View
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
@@ -9,10 +8,11 @@ from .webhook import Service
 from .models import Event, Filter, EndpointDirect, EmbededFields, EmbededFooter, EndpointEmbeded
 from django.views.generic import ListView
 from app_users.forms import FilterForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm, EventForm
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
+from django.forms import Form
 from django.contrib import messages
-from django.views.generic.edit import DeleteView, UpdateView
+from django.views.generic.edit import DeleteView, UpdateView, CreateView
 import logging
 
 logger = logging.getLogger('app_hooks')
@@ -43,185 +43,114 @@ class EventListView(ListView):
         return Event.objects.all().order_by('name')
 
 
-class MakeDirectEndpoint(ListView):
+class MakeDirectEndpoint(CreateView):
     model = EndpointDirect
+    form_class = EndpointDirectForm
     template_name = 'app_hooks/makedirectevent.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:make_event')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['direct_form'] = EndpointDirectForm()
+            context['direct_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = EndpointDirectForm(request.POST)
-
-        if form.is_valid() and form.cleaned_data:
-            new_fields = EndpointDirect(
-                name=form.cleaned_data['name'],
-                callback=form.cleaned_data['callback'],
-                template=form.cleaned_data['template']
-            )
-            new_fields.save()
-            messages.success(
-                request, f'Direct endpoint {new_fields.name} добавлен')
-            return redirect('events:make_event')
-        else:
-            form = EndpointDirectForm()
-        return redirect(request, "make_directevent.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request, f'Direct endpoint {self.object.name} добавлен')
+        return response
 
 
-class MakeEmbededEndpoint(ListView):
+class MakeEmbededEndpoint(CreateView):
     model = EndpointEmbeded
+    form_class = EndpointEmbededForm
     template_name = 'app_hooks/makeembededevent.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:make_event')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['embeded_form'] = EndpointEmbededForm()
+            context['embeded_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = EndpointEmbededForm(request.POST)
-
-        if form.is_valid() and form.cleaned_data:
-            new_fields = EndpointEmbeded(
-                name=form.cleaned_data['name'],
-                callback=form.cleaned_data['callback'],
-                title=form.cleaned_data['title'],
-                description=form.cleaned_data['description'],
-                url=form.cleaned_data['url'],
-                color=form.cleaned_data['color'],
-                thumbnail=form.cleaned_data['thumbnail'],
-                author=form.cleaned_data['author']
-            )
-            new_fields.save()
-            new_fields.footer.set(form.cleaned_data['footer'])
-            new_fields.fields.set(form.cleaned_data['fields'])
-            new_fields.save()
-            messages.success(
-                request, f'Endpoint embeded {new_fields.name} добавлен')
-            return redirect('events:make_event')
-        else:
-            form = EndpointEmbededForm()
-        return redirect(request, "makeembededevent.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request, f'Embed endpoint {self.object.name} добавлен')
+        return response
 
 
-class MakeEvent(ListView):
+class MakeEvent(CreateView):
     model = Event
+    form_class = EventForm
     template_name = 'app_hooks/makeevent.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:events')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['event_form'] = EventForm()
+            context['event_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = EventForm(request.POST)
-
-        if form.is_valid() and form.cleaned_data:
-            new_fields = Event(
-                name=form.cleaned_data['name']
-            )
-            new_fields.save()
-            new_fields.filters.set(form.cleaned_data['filters'])
-            new_fields.endpoints.set(
-                form.cleaned_data['endpoints'])
-            new_fields.save()
-            messages.success(request, f"Event {new_fields.name} добавлен")
-            return redirect('events:events')
-        else:
-            form = EventForm()
-        return redirect(request, "makeevent.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Event {self.object.name} добавлен')
+        return response
 
 
-class MakeFilter(ListView):
+class MakeFilter(CreateView):
     model = Filter
+    form_class = FilterForm
     template_name = 'app_hooks/makefilter.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:make_event')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['filter_form'] = FilterForm()
+            context['filter_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = FilterForm(request.POST)
-
-        if form.is_valid():
-            new_fields = Filter(
-                name=form.cleaned_data['name'],
-                data=form.cleaned_data['data']
-            )
-            new_fields.save()
-            messages.success(request, f'Filter {new_fields.name} добавлен')
-            return redirect('events:make_event')
-        else:
-            form = FilterForm()
-
-        return redirect(request, "makefilter.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Filter {self.object.name} добавлен')
+        return response
 
 
-class MakeFields(ListView):
+class MakeFields(CreateView):
     model = EmbededFields
+    form_class = EmbededFieldsForm
     template_name = 'app_hooks/makefields.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:make_eventembed')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['embededfields_form'] = EmbededFieldsForm()
+            context['embededfields_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = EmbededFieldsForm(request.POST)
-
-        if form.is_valid():
-            new_fields = EmbededFields(
-                name=form.cleaned_data['name'],
-                value=form.cleaned_data['value'],
-                inline=form.cleaned_data['inline']
-            )
-            new_fields.save()
-            messages.success(request, f'Field {new_fields.name} добавлен')
-            return redirect('events:make_eventembed')
-        else:
-            form = EmbededFieldsForm()
-
-        return redirect(request, "makefields.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Field {self.object.name} добавлен')
+        return response
 
 
-class MakeFooter(ListView):
+class MakeFooter(CreateView):
     model = EmbededFooter
+    form_class = EmbededFooterForm
     template_name = 'app_hooks/makefooter.html'
-    context_object_name = 'makeevent'
+    success_url = reverse_lazy('events:make_eventembed')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['footer_form'] = EmbededFooterForm()
+            context['footer_form'] = context['form']
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = EmbededFooterForm(request.POST)
-
-        if form.is_valid():
-            new_fields = EmbededFooter(
-                text=form.cleaned_data['text'],
-                icon_url=form.cleaned_data['icon_url']
-            )
-            new_fields.save()
-            messages.success(request, f'Footer {new_fields.text} добавлен')
-            return redirect('events:make_eventembed')
-
-        else:
-            form = EmbededFooterForm()
-        return redirect(request, "makefooter.html", {"form": form})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Footer {self.object.text} добавлен')
+        return response
 
 
 class EventDeleteView(DeleteView):
@@ -237,8 +166,26 @@ class EventUpdateView(UpdateView):
     model = Event
     form_class = EventForm
     template_name = 'app_hooks/update.html'
-    success_url = reverse_lazy('events:upd_events')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['event_form'] = context['form']
+            context['event_id'] = self.object.id
+        return context
+
+    def post(self, request, pk):
+        post = get_object_or_404(Event, pk=pk)
+        form = EventForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            form.save_m2m()
+            messages.success(request, f"Event {post.name} обновлен")
+            return redirect('events:upd_events', pk=post.pk)
+        else:
+            form = EventForm(instance=post)
+        return render(request, "app_hooks/update.html", {"form": form, "event_id": pk})
 
     def get_success_url(self):
-        messages.success(self.request, f'Event изменен')
         return reverse_lazy('events:upd_events', kwargs={'pk': self.object.pk})

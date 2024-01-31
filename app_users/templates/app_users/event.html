@@ -7,18 +7,18 @@
   </div>
   
   <div class="col-md-4">
-    <div class="form-group btn1">
-      <a href="{% url 'events:make_filter' %}" class="btn btn-outline-warning">Добавить новый фильтр</a>
+    <div class="form-group">
+      <a href="{% url 'events:make_filter' %}" class="btn btn-outline-warning" style="margin-top: 126px;">Добавить новый фильтр</a>
     </div>
     
-    <div class="form-group btn2-3">
-      <a href="{% url 'events:make_eventdirect' %}" class="btn btn-outline-warning">Добавить direct</a>
-      <a href="{% url 'events:make_eventembed' %}" class="btn btn-outline-warning">Добавить embed</a>
+    <div class="form-group">
+      <a href="{% url 'events:make_eventdirect' %}" class="btn btn-outline-warning" style="margin-top: 91px;">Добавить direct</a>
+      <a href="{% url 'events:make_eventembed' %}" class="btn btn-outline-warning" style="margin-top: 10px;">Добавить embed</a>
     </div>
   </div>
   
   <div class="col-12">
-    <button type="submit" class="btn btn-outline-warning">Добавить Event</button>
+    <button type="submit" class="btn btn-outline-warning">Сохранить Event</button>
   </div>
 </form>
 {% endblock %}

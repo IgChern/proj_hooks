@@ -2,6 +2,7 @@
 {% block all_events %}
 <div class="container mt-3">
   <h2>Список созданных Ивентов</h2>
+  <p><mark>Всего ивентов: {{ page_obj.paginator.count }}</mark></p>
   <table class="table table-striped">
     <thead>
       <tr>

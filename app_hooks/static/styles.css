@@ -7,31 +7,3 @@
     justify-content: center;
     height: 20vh;
 }
-
-.heading-style {
-    font-size: 30px;
-    color: black;
-}
-
-.yellow-highlight-form {
-    border-color: #ffc207;
-    box-shadow: 0 0 25px #ffc207;
-}
-
-.btn1 {
-    text-align: left;
-    margin-top: 102px;
-}
-
-.btn1 a {
-    margin-bottom: 12px;
-}
-
-.btn2-3 {
-    text-align: left;
-    margin-top: 81px;
-}
-
-.btn2-3 a {
-    margin-bottom: 10px;
-}

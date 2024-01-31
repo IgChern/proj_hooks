@@ -16,8 +16,8 @@ class FilterForm(forms.ModelForm):
         model = Filter
         fields = ['name', 'data']
         labels = {
-            'name': 'Название фильтра',
-            'data': 'Данные фильтра',
+            'name': 'Введите название фильтра',
+            'data': 'Введите данные фильтра',
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -30,9 +30,9 @@ class EndpointDirectForm(forms.ModelForm):
         model = EndpointDirect
         fields = ['name', 'callback', 'template']
         labels = {
-            'name': 'Название endpoint',
-            'callback': 'Данные callback(url)',
-            'template': 'Данные template'
+            'name': 'Введите название эндпоинта',
+            'callback': 'Введите данные callback(url)',
+            'template': 'Введите данные template'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -46,9 +46,9 @@ class EmbededFieldsForm(forms.ModelForm):
         model = EmbededFields
         fields = ['name', 'value', 'inline']
         labels = {
-            'name': 'Название field',
-            'value': 'Данные value',
-            'inline': 'Inline(T/F)'
+            'name': 'Введите название доп. поля',
+            'value': 'Введите данные доп. поля',
+            'inline': 'Выберите Inline'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -61,8 +61,8 @@ class EmbededFooterForm(forms.ModelForm):
         model = EmbededFooter
         fields = ['text', 'icon_url']
         labels = {
-            'text': 'Текст footer',
-            'icon_url': 'Ссылка на image'
+            'text': 'Введите текст футера',
+            'icon_url': 'Введите ссылку на изображение футера'
         }
         widgets = {
             'text': forms.TextInput(attrs={'class': 'form-control'}),
@@ -77,14 +77,14 @@ class EndpointEmbededForm(forms.ModelForm):
         fields = ['name', 'callback', 'title', 'description',
                   'url', 'color', 'thumbnail', 'author', 'fields', 'footer']
         labels = {
-            'name': 'Название endpoint',
-            'callback': 'Данные callback(url)',
-            'title': 'Данные title',
-            'description': 'Данные description',
-            'url': 'Данные URL',
-            'color': 'Данные color',
-            'thumbnail': 'Данные thumbnail(url)',
-            'author': 'Данные author',
+            'name': 'Введите название эндпоинта',
+            'callback': 'Введите данные callback(url)',
+            'title': 'Введите данные title',
+            'description': 'Введите данные description',
+            'url': 'Введите URL',
+            'color': 'Введите цвет в формате цифр',
+            'thumbnail': 'Введите данные thumbnail(url)',
+            'author': 'Введите автора',
             'fields': 'Выберите fields или добавьте новый',
             'footer': 'Выберите footer или добавьте новый'
         }
@@ -108,8 +108,8 @@ class EventForm(forms.ModelForm):
         fields = ['name', 'filters', 'endpoints']
         labels = {
             'name': 'Введите название Ивента',
-            'filters': 'Выберите filter из списка или добавьте новый',
-            'endpoints': 'Выберите endpoint из списка или добавьте новый'
+            'filters': 'Выберите фильтр из списка или добавьте новый',
+            'endpoints': 'Выберите эндпоинт из списка или добавьте новый'
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
