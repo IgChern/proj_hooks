@@ -20,7 +20,7 @@ class MiddlewaresBase(models.Model):
     }
     name = models.CharField(_('Middleware name'), max_length=255, blank=True)
     class_type = models.CharField(
-        _("Middleware Class Type"), max_length=255)
+        _("Middleware Class Type"), max_length=255, choices=CHOICES)
 
     def __str__(self):
         return self.class_type
@@ -68,12 +68,12 @@ class ReleaseStatMiddleware(MiddlewaresBase):
             tasks[task.fields.issuetype.name].append(
                 {"key": task.key, 'name': task.fields.summary, 'assignee': assignee, 'qa': qa})
 
-        data = {'project': project.name,
-                'version': self.version, 'tasks': tasks}
+        jira_data = {'project': project.name,
+                     'version': self.version, 'tasks': tasks, 'class_type': self.class_type}
 
         middleware_config = MiddlewaresBase.objects.get(
-            class_type='release_stat')
-        return middleware_config.process_middleware(data)
+            class_type=self.class_type)
+        return middleware_config.process_middleware(jira_data)
 
 
 class TaskStatMiddleware(MiddlewaresBase):
