@@ -8,6 +8,100 @@ from .helpers import get_dict_path_or_none
 from django.core.exceptions import ValidationError
 
 
+class MiddlewaresBase(models.Model):
+    CHOICES = (
+        ('task_stat', "Статистика задач"),
+        ('release_stat', "Статистика релизов"),
+    )
+
+    CLASSES = {
+        'task_stat': 'TaskStatMiddleware',
+        'release_stat': 'ReleaseStatMiddleware',
+    }
+    name = models.CharField(_('Middleware name'), max_length=255, blank=True)
+    class_type = models.CharField(
+        _("Middleware Class Type"), max_length=255)
+
+    def __str__(self):
+        return self.class_type
+
+    def process_middleware(self, data):
+        return self.CLASSES[self.class_type]().process(data)
+
+    class Meta:
+        verbose_name = _('Middleware')
+        verbose_name_plural = _('Middlewares')
+
+
+class ReleaseStatMiddleware(MiddlewaresBase):
+    class_type = 'release_stat'
+    project_id = models.CharField(_('Project'), max_length=255, blank=True)
+    version = models.CharField(_('Version'), max_length=255, blank=True)
+
+    def process(self, data):
+
+        issues = jira.search_issues(
+            f'fixVersion={self.version} AND project={self.project_id}')
+
+        tasks = {}
+        task_assignee = {
+            x.key: x.fields.assignee.displayName for x in issues if x.fields.assignee}
+
+        project = jira.project(self.project_id)
+
+        for task in issues:
+            if task.fields.issuetype.subtask:
+                continue
+
+            if task.fields.issuetype.name not in tasks:
+                tasks[task.fields.issuetype.name] = []
+
+            assignee = []
+            if task.fields.subtasks:
+                assignee = [task_assignee.get(
+                    x.key) for x in task.fields.subtasks if task_assignee.get(x.key)]
+            elif task.fields.assignee:
+                assignee.append(task.fields.assignee.displayName)
+
+            qa = task.fields.customfield_10500.displayName if task.fields.customfield_10500 else None
+
+            tasks[task.fields.issuetype.name].append(
+                {"key": task.key, 'name': task.fields.summary, 'assignee': assignee, 'qa': qa})
+
+        data = {'project': project.name,
+                'version': self.version, 'tasks': tasks}
+
+        middleware_config = MiddlewaresBase.objects.get(
+            class_type='release_stat')
+        return middleware_config.process_middleware(data)
+
+
+class TaskStatMiddleware(MiddlewaresBase):
+    class_type = 'task_stat'
+
+    task_id = models.CharField(_('Task id'), max_length=255, blank=True)
+    frontend_score = models.CharField(
+        _('Front score'), max_length=255, blank=True)
+    backend_score = models.CharField(
+        _('Back score'), max_length=255, blank=True)
+
+    def process(self, data):
+        issue_obj = jira.issue(id=self.task_id, expand='changelog')
+        estimates = {'frontend_score': self.frontend_score,
+                     'backend_score': self.backend_score, 'estimates': []}
+
+        if issue_obj.fields.subtasks:
+            for subtask in issue_obj.fields.subtasks:
+                estimates['estimates'].append(self.check_estimate(subtask))
+        else:
+            estimates['estimates'].append(self.check_estimate(issue_obj))
+
+        data['estimates'] = estimates
+
+        middleware_config = MiddlewaresBase.objects.get(class_type='task_stat')
+        return middleware_config.process_middleware(data)
+
+
 class Filter(models.Model):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
@@ -160,7 +254,6 @@ class EndpointEmbeded(EndpointInterface):
         return result_string
 
     def get_discord_data(self, jira_data: dict):
-        # узнать за обязательные поля, добавить валидации, починить админку
 
         priority_color = {
             "Hot": "10038562",

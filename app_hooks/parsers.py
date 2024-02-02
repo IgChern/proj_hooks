@@ -53,8 +53,7 @@ class CallbackParser(object):
                 if data_filter[0]['endpoint'] in self.endpoints:
                     endpoint_instance = self.endpoints[data_filter[0]['endpoint']](
                         data_filter[0], data)
-                    result = endpoint_instance.send_message()
-
+                    result = endpoint_instance.send_message(self.endpoints)
                 matched_filters[data_filter[0]['id']]['status'] = result
 
         return {'matched_filters': matched_filters}

@@ -1,6 +1,22 @@
 from django.contrib import admin
-from .models import Event, Filter, EndpointEmbeded, EmbededFields, EndpointDirect, EndpointInterface, EmbededFooter
+from .models import (Event, Filter, EndpointEmbeded,
+                     EmbededFields, EndpointDirect,
+                     EndpointInterface, EmbededFooter,
+                     ReleaseStatMiddleware,
+                     TaskStatMiddleware)
 from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin
+
+
+@admin.register(TaskStatMiddleware)
+class TaskStatMiddlewareAdmin(admin.ModelAdmin):
+    list_display = ('class_type', )
+    search_fields = ('name', )
+
+
+@admin.register(ReleaseStatMiddleware)
+class ReleaseStatMiddlewareAdmin(admin.ModelAdmin):
+    list_display = ('project_id', 'version')
+    search_fields = ('name', )
 
 
 @admin.register(Event)

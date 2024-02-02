@@ -2,18 +2,16 @@ from .base import EndpointInterfaceABC
 from typing import Any
 from ..templates import render_to_string
 import requests
+from ..helpers import get_dict_path_or_none
 from jira import JIRA
-from ..models import EndpointDirect, EndpointInterface
+from ..models import EndpointDirect
+import datetime
 
 # jira = JIRA('https://jira.appevent.ru', basic_auth=('<jira_username>', '<jira_password>'))
 
 
 class DiscordDirectEndpoint(EndpointInterfaceABC):
     """ Рендер из шаблона """
-
-    def __init__(self, data_filter: dict, jira_data: dict):
-        self.data_filter: dict = data_filter
-        self.jira_data: dict = jira_data
 
     def get_discord_post_data(self, endpoint) -> Any:
 
@@ -23,13 +21,10 @@ class DiscordDirectEndpoint(EndpointInterfaceABC):
         return {'content': render_to_string(
             template=template, base_data=self.data_filter, jira_data=self.jira_data)}
 
-    def send_message(self) -> bool:
-
-        endpoint = EndpointInterface.objects.get(
-            id=self.data_filter['endpoint_id'])
+    def send_message(self, endpoint) -> bool:
         response = requests.post(
-            endpoint.callback,
-            json=self.get_discord_post_data(endpoint)
+            self.endpoint.callback,
+            json=self.get_discord_post_data(self.endpoint)
         )
         response.raise_for_status()
         if response.status_code == 204:
@@ -41,16 +36,13 @@ class DiscordEmbededEndpoint(DiscordDirectEndpoint):
     """ Рендер встроенного шаблона """
 
     def get_discord_post_data(self, endpoint) -> Any:
-        post = endpoint.get_discord_data(jira_data=self.jira_data)
+        post = self.endpoint.get_discord_data(jira_data=self.jira_data)
         return post
 
-    def send_message(self) -> bool:
-
-        endpoint = EndpointInterface.objects.get(
-            id=self.data_filter['endpoint_id'])
+    def send_message(self, endpoint) -> bool:
         response = requests.post(
-            endpoint.callback,
-            json=self.get_discord_post_data(endpoint)
+            self.endpoint.callback,
+            json=self.get_discord_post_data(self.endpoint)
         )
         response.raise_for_status()
         if response.status_code == 204:
