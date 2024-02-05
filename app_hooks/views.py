@@ -190,6 +190,3 @@ class EventUpdateView(UpdateView):
         else:
             form = EventForm(instance=post)
         return render(request, "app_hooks/update.html", {"form": form, "event_id": pk})
-
-    def get_success_url(self):
-        return reverse_lazy('events:upd_events', kwargs={'pk': self.object.pk})

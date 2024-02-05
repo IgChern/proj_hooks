@@ -9,6 +9,7 @@ class EndpointInterfaceABC(metaclass=ABCMeta):
         self.data_filter: dict = data_filter
         self.jira_data: dict = jira_data
         self.endpoint = self.get_endpoint()
+        self.process_middleware()
 
     def process_middleware(self):
         for middleware in self.endpoint.middlewares.all():

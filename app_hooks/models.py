@@ -9,24 +9,32 @@ from django.core.exceptions import ValidationError
 
 
 class MiddlewaresBase(models.Model):
-    CHOICES = (
-        ('task_stat', "Статистика задач"),
-        ('release_stat', "Статистика релизов"),
-    )
+
+    TASK_STAT = 'task_stat'
+    RELEASE_STAT = 'release_stat'
 
     CLASSES = {
-        'task_stat': 'TaskStatMiddleware',
-        'release_stat': 'ReleaseStatMiddleware',
+        TASK_STAT: 'TaskStatMiddleware',
+        RELEASE_STAT: 'ReleaseStatMiddleware',
     }
+
     name = models.CharField(_('Middleware name'), max_length=255, blank=True)
-    class_type = models.CharField(
+
+    CHOICES = (
+        (TASK_STAT, "Статистика задач"),
+        (RELEASE_STAT, "Статистика релизов"),
+    )
+
+    type = models.CharField(
         _("Middleware Class Type"), max_length=255, choices=CHOICES)
 
     def __str__(self):
-        return self.class_type
+        return self.type
 
     def process_middleware(self, data):
-        return self.CLASSES[self.class_type]().process(data)
+        if self.type in self.CLASSES:
+            middleware_class = globals()[self.CLASSES[self.type]]
+            return middleware_class().process(data)
 
     class Meta:
         verbose_name = _('Middleware')
@@ -39,41 +47,14 @@ class ReleaseStatMiddleware(MiddlewaresBase):
     version = models.CharField(_('Version'), max_length=255, blank=True)
 
     def process(self, data):
+        project_id = self.project_id
+        version = self.version
+        data['release_stat'] = {
+            'project_id': project_id,
+            'version': version,
+        }
 
-        issues = jira.search_issues(
-            f'fixVersion={self.version} AND project={self.project_id}')
-
-        tasks = {}
-        task_assignee = {
-            x.key: x.fields.assignee.displayName for x in issues if x.fields.assignee}
-
-        project = jira.project(self.project_id)
-
-        for task in issues:
-            if task.fields.issuetype.subtask:
-                continue
-
-            if task.fields.issuetype.name not in tasks:
-                tasks[task.fields.issuetype.name] = []
-
-            assignee = []
-            if task.fields.subtasks:
-                assignee = [task_assignee.get(
-                    x.key) for x in task.fields.subtasks if task_assignee.get(x.key)]
-            elif task.fields.assignee:
-                assignee.append(task.fields.assignee.displayName)
-
-            qa = task.fields.customfield_10500.displayName if task.fields.customfield_10500 else None
-
-            tasks[task.fields.issuetype.name].append(
-                {"key": task.key, 'name': task.fields.summary, 'assignee': assignee, 'qa': qa})
-
-        jira_data = {'project': project.name,
-                     'version': self.version, 'tasks': tasks, 'class_type': self.class_type}
-
-        middleware_config = MiddlewaresBase.objects.get(
-            class_type=self.class_type)
-        return middleware_config.process_middleware(jira_data)
+        return data
 
 
 class TaskStatMiddleware(MiddlewaresBase):
@@ -86,20 +67,16 @@ class TaskStatMiddleware(MiddlewaresBase):
         _('Back score'), max_length=255, blank=True)
 
     def process(self, data):
-        issue_obj = jira.issue(id=self.task_id, expand='changelog')
-        estimates = {'frontend_score': self.frontend_score,
-                     'backend_score': self.backend_score, 'estimates': []}
+        task_id = self.task_id
+        frontend_score = self.frontend_score
+        backend_score = self.backend_score
+        data['task_stat'] = {
+            'task_id': task_id,
+            'frontend_score': frontend_score,
+            'backend_score': backend_score,
+        }
 
-        if issue_obj.fields.subtasks:
-            for subtask in issue_obj.fields.subtasks:
-                estimates['estimates'].append(self.check_estimate(subtask))
-        else:
-            estimates['estimates'].append(self.check_estimate(issue_obj))
-
-        data['estimates'] = estimates
-
-        middleware_config = MiddlewaresBase.objects.get(class_type='task_stat')
-        return middleware_config.process_middleware(data)
+        return data
 
 
 class Filter(models.Model):
@@ -127,6 +104,8 @@ class EndpointInterface(PolymorphicModel):
 
     name = models.CharField(_('Name'), max_length=255, blank=False)
     callback = models.URLField(_('Callback'), blank=False)
+    middleware = models.ManyToManyField(
+        MiddlewaresBase, related_name='middleware')
 
     def __str__(self):
         return self.name
