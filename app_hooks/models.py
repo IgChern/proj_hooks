@@ -6,6 +6,7 @@ from polymorphic.models import PolymorphicModel
 import re
 from .helpers import get_dict_path_or_none
 from django.core.exceptions import ValidationError
+from .middlewares import TaskStatMiddleware, ReleaseStatMiddleware
 
 
 class MiddlewaresBase(models.Model):
@@ -14,11 +15,9 @@ class MiddlewaresBase(models.Model):
     RELEASE_STAT = 'release_stat'
 
     CLASSES = {
-        TASK_STAT: 'TaskStatMiddleware',
-        RELEASE_STAT: 'ReleaseStatMiddleware',
+        TASK_STAT: TaskStatMiddleware,
+        RELEASE_STAT: ReleaseStatMiddleware,
     }
-
-    name = models.CharField(_('Middleware name'), max_length=255, blank=True)
 
     CHOICES = (
         (TASK_STAT, "Статистика задач"),
@@ -26,57 +25,19 @@ class MiddlewaresBase(models.Model):
     )
 
     type = models.CharField(
-        _("Middleware Class Type"), max_length=255, choices=CHOICES)
+        _("Middleware Class Type"), max_length=255, choices=CHOICES, default=TASK_STAT)
 
     def __str__(self):
         return self.type
 
     def process_middleware(self, data):
         if self.type in self.CLASSES:
-            middleware_class = globals()[self.CLASSES[self.type]]
-            return middleware_class().process(data)
+            middleware_class = self.CLASSES[self.type]
+            return middleware_class.process(data)
 
     class Meta:
         verbose_name = _('Middleware')
         verbose_name_plural = _('Middlewares')
-
-
-class ReleaseStatMiddleware(MiddlewaresBase):
-    class_type = 'release_stat'
-    project_id = models.CharField(_('Project'), max_length=255, blank=True)
-    version = models.CharField(_('Version'), max_length=255, blank=True)
-
-    def process(self, data):
-        project_id = self.project_id
-        version = self.version
-        data['release_stat'] = {
-            'project_id': project_id,
-            'version': version,
-        }
-
-        return data
-
-
-class TaskStatMiddleware(MiddlewaresBase):
-    class_type = 'task_stat'
-
-    task_id = models.CharField(_('Task id'), max_length=255, blank=True)
-    frontend_score = models.CharField(
-        _('Front score'), max_length=255, blank=True)
-    backend_score = models.CharField(
-        _('Back score'), max_length=255, blank=True)
-
-    def process(self, data):
-        task_id = self.task_id
-        frontend_score = self.frontend_score
-        backend_score = self.backend_score
-        data['task_stat'] = {
-            'task_id': task_id,
-            'frontend_score': frontend_score,
-            'backend_score': backend_score,
-        }
-
-        return data
 
 
 class Filter(models.Model):
