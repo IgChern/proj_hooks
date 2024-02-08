@@ -30,10 +30,10 @@ class MiddlewaresBase(models.Model):
     def __str__(self):
         return self.type
 
-    def process_middleware(self, data):
+    def process_middleware(self, jira_data):
         if self.type in self.CLASSES:
             middleware_class = self.CLASSES[self.type]
-            return middleware_class.process(data)
+            return middleware_class.process(jira_data)
 
     class Meta:
         verbose_name = _('Middleware')
@@ -267,12 +267,16 @@ class Event(models.Model):
                 else:
                     endpoint_filter_list.append(data_filter.data)
 
+            middleware_list = [
+                middleware.type for middleware in endpoint.middleware.all()]
+
             data = {
                 'id': f'{self.id}-{endpoint.id}',
                 'name': self.name,
                 'filters': endpoint_filter_list,
                 'endpoint': endpoint.ENDPOINT_TYPE,
                 'endpoint_id': endpoint.id,
+                'middleware': middleware_list
             }
 
             filters_list.append(data)

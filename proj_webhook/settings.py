@@ -185,3 +185,8 @@ LOGGING = {
         },
     },
 }
+
+
+LOGIN_REDIRECT_URL = 'events:events'
+LOGOUT_REDIRECT_URL = 'users:login'
+LOGIN_URL = 'users:login'

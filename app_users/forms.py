@@ -1,10 +1,11 @@
 from django import forms
 from app_hooks.models import Filter, EmbededFooter, EmbededFields, EndpointDirect, EndpointEmbeded, Event
+from django.contrib.auth.forms import AuthenticationForm
 
 from django.forms import inlineformset_factory
 
 
-class LoginUserForm(forms.Form):
+class LoginUserForm(AuthenticationForm):
     username = forms.CharField(label='Логин',
                                widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Введите логин'}))
     password = forms.CharField(label='Пароль',

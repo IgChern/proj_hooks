@@ -12,7 +12,7 @@ class EndpointInterfaceABC(metaclass=ABCMeta):
         self.process_middleware()
 
     def process_middleware(self):
-        for middleware in self.endpoint.middlewares.all():
+        for middleware in self.endpoint.middleware.all():
             self.jira_data[middleware.type] = middleware.process_middleware(
                 self.jira_data)
 

@@ -6,20 +6,19 @@ import datetime
 
 
 class MiddlewareInterface(metaclass=ABCMeta):
-    def __init__(self, jira_data: dict):
-        self.jira_data: dict = jira_data
 
     @abstractmethod
-    def process(self, jira_data: dict):
+    def process(self, jira_data):
         return {}
 
 
 class TaskStatMiddleware(MiddlewareInterface):
-    def process(self, jira_data: Dict):
+    def process(jira_data):
         jira = JIRA('https://jira.appevent.ru',
                     basic_auth=('<jira_username>', '<jira_password>'))
 
-        issue_obj = jira.issue(id=jira_data['issue']['id'], expand='changelog')
+        issue_obj = jira.issue(
+            id=jira_data['issue']['id'], expand='changelog')
 
         assignee = issue_obj.fields.assignee.displayName if issue_obj.fields.assignee else "Не назначен"
         time_spended = 0
@@ -59,9 +58,10 @@ class TaskStatMiddleware(MiddlewareInterface):
 
 class ReleaseStatMiddleware(MiddlewareInterface):
 
-    def process(self, jira_data: Dict):
+    def process(jira_data):
 
-        project_id = get_dict_path_or_none(jira_data, 'version', 'projectId')
+        project_id = get_dict_path_or_none(
+            jira_data, 'version', 'projectId')
         version = get_dict_path_or_none(jira_data, 'version', 'name')
 
         jira = JIRA('https://jira.appevent.ru',

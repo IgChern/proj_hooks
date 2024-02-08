@@ -46,6 +46,7 @@ class CallbackParser(object):
             if filt:
                 matched_filters[data_filter[0]['id']] = {
                     'name': data_filter[0]['name'], 'endpoint': data_filter[0]['endpoint'],
+                    'middleware': data_filter[0]['middleware'][0],
                     'status': 0}
 
                 result = False
