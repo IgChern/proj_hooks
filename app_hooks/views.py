@@ -1,21 +1,19 @@
-from django.forms.models import BaseModelForm
-from rest_framework.views import APIView, View
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.permissions import AllowAny
 from .webhook import Service
 # from .tasks import process_jira_callback_task
-from .models import Event, Filter, EndpointDirect, EmbededFields, EmbededFooter, EndpointEmbeded
+from .models import (Event, Filter, EndpointDirect,
+                     EmbededFields, EmbededFooter, EndpointEmbeded)
 from django.views.generic import ListView
-from app_users.forms import FilterForm, EndpointDirectForm, EmbededFieldsForm, EmbededFooterForm, EndpointEmbededForm, EventForm
+from app_users.forms import (FilterForm, EndpointDirectForm,
+                             EmbededFieldsForm, EmbededFooterForm,
+                             EndpointEmbededForm, EventForm)
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
-from django.forms import Form
 from django.contrib import messages
 from django.views.generic.edit import DeleteView, UpdateView, CreateView
-import logging
-
-logger = logging.getLogger('app_hooks')
 
 
 class EventViewSet(APIView):

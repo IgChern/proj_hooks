@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import JSONField
 from django.utils.translation import gettext_lazy as _
-from typing import List, Any, Dict
+from typing import List, Dict
 from polymorphic.models import PolymorphicModel
 import re
 from .helpers import get_dict_path_or_none
@@ -33,7 +33,7 @@ class MiddlewaresBase(models.Model):
     def process_middleware(self, jira_data):
         if self.type in self.CLASSES:
             middleware_class = self.CLASSES[self.type]
-            return middleware_class.process(jira_data)
+            return middleware_class().process(jira_data)
 
     class Meta:
         verbose_name = _('Middleware')

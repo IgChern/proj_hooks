@@ -1,6 +1,5 @@
 import json
 from typing import Any, List, Optional
-
 from .endpoints.discord import DiscordDirectEndpoint, DiscordEmbededEndpoint
 from .helpers import get_dict_path_or_none
 from .models import Filter
@@ -46,7 +45,6 @@ class CallbackParser(object):
             if filt:
                 matched_filters[data_filter[0]['id']] = {
                     'name': data_filter[0]['name'], 'endpoint': data_filter[0]['endpoint'],
-                    'middleware': data_filter[0]['middleware'][0],
                     'status': 0}
 
                 result = False

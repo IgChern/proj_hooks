@@ -5,7 +5,7 @@ app_hooks/migrations
 proj_webhook/__pycache__
 **/.DS_Store
 .DS_Store
-proj_webhook/logs
+app_hooks/logs.log
 app_hooks/endpoints/__pycache__
 celerybeat-schedule.db
 dump.rdb

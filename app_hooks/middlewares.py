@@ -1,7 +1,6 @@
 from .helpers import get_dict_path_or_none
 from jira import JIRA
 from abc import ABCMeta, abstractmethod
-from typing import Dict
 import datetime
 
 
@@ -13,7 +12,7 @@ class MiddlewareInterface(metaclass=ABCMeta):
 
 
 class TaskStatMiddleware(MiddlewareInterface):
-    def process(jira_data):
+    def process(self, jira_data):
         jira = JIRA('https://jira.appevent.ru',
                     basic_auth=('<jira_username>', '<jira_password>'))
 
@@ -53,12 +52,12 @@ class TaskStatMiddleware(MiddlewareInterface):
 
         m_data = {'assignee': assignee, 'reopen_count': reopen_count,
                   'time_spended': round(time_spended, 2)}
-        return {'middleware': m_data}
+        return {'task_stat': m_data}
 
 
 class ReleaseStatMiddleware(MiddlewareInterface):
 
-    def process(jira_data):
+    def process(self, jira_data):
 
         project_id = get_dict_path_or_none(
             jira_data, 'version', 'projectId')
@@ -98,4 +97,4 @@ class ReleaseStatMiddleware(MiddlewareInterface):
         m_data = {'project': project.name,
                   'version': version, 'tasks': tasks}
 
-        return {'middleware': m_data}
+        return {'release_stat': m_data}
