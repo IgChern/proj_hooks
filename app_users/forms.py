@@ -1,5 +1,7 @@
 from django import forms
-from app_hooks.models import Filter, EmbededFooter, EmbededFields, EndpointDirect, EndpointEmbeded, Event
+from app_hooks.models import (Filter, EmbededFooter, EmbededFields,
+                              EndpointDirect, EndpointEmbeded, Event,
+                              MiddlewaresBase)
 from django.contrib.auth.forms import AuthenticationForm
 
 from django.forms import inlineformset_factory
@@ -116,4 +118,16 @@ class EventForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'filters': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'endpoints': forms.SelectMultiple(attrs={'class': 'form-select'}),
+        }
+
+
+class MiddlewareForm(forms.ModelForm):
+    class Meta:
+        model = MiddlewaresBase
+        fields = ['type']
+        labels = {
+            'type': 'Выберите Middleware'
+        }
+        widgets = {
+            'type': forms.Select(attrs={'class': 'form-select'})
         }

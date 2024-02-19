@@ -1,0 +1,11 @@
+{% load crispy_forms_tags %}
+{% block middleware_form_content %}
+<form method="post">
+  <div class="mb-3">
+    <div class="form-control">
+        {% csrf_token %}
+        {{middleware_form|crispy}}</div>
+  </div>
+  <button type="submit" class="btn btn-outline-warning">Сохранить Middleware</button>
+</form>
+{% endblock %}

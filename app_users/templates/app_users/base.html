@@ -37,9 +37,9 @@
     </div>
 
     <div class="container">
-        <div class="d-flex justify-content-end"> <!-- Используем d-flex для создания flex-контейнера и justify-content-end для выравнивания по правому краю -->
+        <div class="d-flex justify-content-end">
             {% if request.user.is_authenticated %}
-                <p class="me-3">Пользователь: {{ request.user.username }}</p> <!-- Используем me-3 для добавления отступа справа -->
+                <p class="me-3">Пользователь: {{ request.user.username }}</p>
             {% endif %}
         </div>
         {% if messages %}

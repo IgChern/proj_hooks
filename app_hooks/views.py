@@ -5,11 +5,11 @@ from rest_framework.permissions import AllowAny
 from .webhook import Service
 # from .tasks import process_jira_callback_task
 from .models import (Event, Filter, EndpointDirect,
-                     EmbededFields, EmbededFooter, EndpointEmbeded)
+                     EmbededFields, EmbededFooter, EndpointEmbeded, MiddlewaresBase)
 from django.views.generic import ListView
 from app_users.forms import (FilterForm, EndpointDirectForm,
                              EmbededFieldsForm, EmbededFooterForm,
-                             EndpointEmbededForm, EventForm)
+                             EndpointEmbededForm, EventForm, MiddlewareForm)
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -44,6 +44,7 @@ class EventListView(ListView):
 class MakeDirectEndpoint(CreateView):
     model = EndpointDirect
     form_class = EndpointDirectForm
+    middleware_form_class = MiddlewareForm
     template_name = 'app_hooks/makedirectevent.html'
     success_url = reverse_lazy('events:make_event')
 
@@ -51,18 +52,36 @@ class MakeDirectEndpoint(CreateView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['direct_form'] = context['form']
+            context['middleware_form'] = self.middleware_form_class()
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(
             self.request, f'Direct endpoint {self.object.name} добавлен')
+
+        middleware_type = self.request.POST.get('type')
+
+        # возвращает кортеж (middleware, true/false)
+        middleware, created = MiddlewaresBase.objects.get_or_create(
+            type=middleware_type)
+
+        if created:
+            messages.success(
+                self.request, f'Новый middleware {middleware.type} создан')
+
+        if middleware not in self.object.middleware.all():
+            self.object.middleware.add(middleware)
+            messages.success(
+                self.request, f'Middleware {middleware.type} добавлен')
+
         return response
 
 
 class MakeEmbededEndpoint(CreateView):
     model = EndpointEmbeded
     form_class = EndpointEmbededForm
+    middleware_form_class = MiddlewareForm
     template_name = 'app_hooks/makeembededevent.html'
     success_url = reverse_lazy('events:make_event')
 
@@ -70,12 +89,29 @@ class MakeEmbededEndpoint(CreateView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['embeded_form'] = context['form']
+            context['middleware_form'] = self.middleware_form_class()
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(
             self.request, f'Embed endpoint {self.object.name} добавлен')
+
+        middleware_type = self.request.POST.get('type')
+
+        # возвращает кортеж (middleware, true/false)
+        middleware, created = MiddlewaresBase.objects.get_or_create(
+            type=middleware_type)
+
+        if created:
+            messages.success(
+                self.request, f'Новый middleware {middleware.type} создан')
+
+        if middleware not in self.object.middleware.all():
+            self.object.middleware.add(middleware)
+            messages.success(
+                self.request, f'Middleware {middleware.type} добавлен')
+
         return response
 
 
