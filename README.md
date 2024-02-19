@@ -26,7 +26,16 @@
 
 ## Требования для пользования приложением
 
-Убедитесь, что Docker и Docker-Compose установлены на вашем ПК.
+Убедитесь, что Docker Desktop, Git и Postman установлены на вашем ПК, иначе:
+ - [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) Установите Docker Desktop
+ - Проверьте корректную установку командой  
+`docker-compose --version`   
+Docker Compose обычно включен в состав Docker Desktop для macOS, поэтому дополнительной установки не требуется.
+- Установите Homebrew (если его нет): Откройте терминал и выполните следующую команду: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+`
+- Установите Git с помощью Homebrew: После установки Homebrew выполните следующую команду в терминале: `brew install git`
+- Проверьте, что Git установлен: `git --version`
+- Установите Postman согласно инструкции на официальном сайте [https://www.postman.com/downloads/](https://www.postman.com/downloads/)
 
 
 ### 1. Склонируйте репозиторий:
@@ -37,7 +46,7 @@
 
     cd proj_hooks
 
-### 3. Создайте файл .env со своими собственными настройками (либо, вы можете запустить приложение локально без .env):
+### 3. Создайте файл .env в корне проекта со своими собственными настройками (либо, вы можете запустить приложение локально без .env):
 
     POSTGRES_ENGINE=<your_settings>
     POSTGRES_NAME=<your_settings>
@@ -52,12 +61,45 @@
 
     docker-compose up
 
-### 5. Доступ к интерфейсу проекта:  
+### 5. Создайте суперпользователя:
+
+    - Выполните команду docker ps
+
+    - Выберите CONTAINER ID, где Image = proj_hooks-django
+
+    - docker exec -it <CONTAINER ID> python manage.py createsuperuser
+
+    - Следуйте инструкциям для создания суперпользователя
+
+### 6. Доступ к интерфейсу проекта:  
 1. [http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/) - Страница авторизации и аутентификации
 2. [http://127.0.0.1:8000/events/](http://127.0.0.1:8000/events/) - Главная страница (Необходима авторизация)
+3. [127.0.0.1:8000/admin/](127.0.0.1:8000/admin/) - Админ панель
 
-### 6. Отправка POST запроса для получения сообщения в Discord
-Вам необходим JSON, который представляет собой данные колбэка от системы Jira.
+### 7. Заполнение формы Ивента для теста:
+<p>При переходе на главную страницу по адресу из пункта "2", вы видете активные ивенты, их эндпоинты и фильтры. При нажатии на кнопку "Создать Ивент" на главной странице, вы перейдете к интерфейсу создания Ивента, где вы можете добавить Фильтры и Эндпоинты соответственно.  </p>
+Пример создания Фильтра:
+
+- Введите название Фильтра
+- Введите данные Фильтра, например [{"key": ["webhookEvent"], "list_key": null, "value": ["jira:issue_created"]},
+            {"key": ["issue_event_type_name"], "list_key": null, "value": ["issue_created"]}]
+
+Пример создания Эндпоинта на примере Direct Endpoint:
+
+- Введите название Эндпоинта
+- Введите URL колбэка (Зайдите в Discord - выберите из списка, нажав правой кнопкой мыши по серверу, Настройки сервера, далее Интеграция, далее выберите Вебхуки, создайте новый Вебхук или скопируйте URL Вебхука и вставьте в форму)
+- Введите Template для теста
+<details>
+<summary>Нажмите для просмотра Template</summary>
+    __**{{ jira_data.user.displayName }}**__ создал(а) **{{ jira_data.issue.fields.issuetype.name }}** с приоритетом **{{ jira_data.issue.fields.priority.name }}**
+> {{ jira_data.issue.key }}: {{jira_data.issue.fields.summary}}
+> [https://jira.appevent.ru/browse/{{ jira_data.issue.key }}]
+> Статус: **{{ jira_data.issue.fields.status.name }}** Исполнитель: **{% if jira_data.issue.fields.assignee %} {{ jira_data.issue.fields.assignee.displayName }} {% else %} Не назначен {% endif %}** Приоритет: **{{ jira_data.issue.fields.priority.name }}**
+> Проект: **{{ jira_data.issue.fields.project.name }}**
+</details>
+
+### 8. Отправка POST запроса для получения сообщения в Discord
+Вам необходим JSON, который представляет собой данные колбэка от Jira.
 <details>
   <summary>Нажмите для просмотра JSON</summary>
 {
@@ -261,8 +303,17 @@
 </details>  
 
 Вы можете использовать Postman для отправки запросов по адресу.  
-[http://127.0.0.1:8000/jira-callback/](http://127.0.0.1:8000/jira-callback/) - Адрес для отправки POST запросов
+[http://127.0.0.1:8000/jira-callback/](http://127.0.0.1:8000/jira-callback/) - Адрес для отправки POST запросов  
+### 9. Инструкция для пользования Postman:
+- Запустите Postman
+- Создайте новый Request, нажав на +
+- Выберите HTTP метод "POST"
+- Вставьте URL адрес выше в поле для URL
+- Выберите Body и затем raw для вставки JSON в поле запроса
+- Нажмите кнопку "Send"  
 
-### 7. Остановка Docker контейнера:
+В верном случае по вставленному URL вебхука придет сообщение в канал Discord
+
+### 10. Остановка Docker контейнера:
 
     docker-compose down
